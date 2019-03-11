@@ -1,0 +1,53 @@
+﻿@using TimeOffTracker.Models;
+@using TimeOffTracker.Controllers;
+@*@model IEnumerable<ApplicationUserRole>*@
+@model ListShowUsersInfo
+@{
+    ViewBag.Title = "AdminUsersPanel";
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Учетные записи
+    </div>
+    <table class="table table-striped">
+        <tr>
+            <th>Имя</th>
+            <th>Email</th>
+            <th>Дата создания</th>
+            <th>Роли</th>
+            <th>@Html.ActionLink("Создать", "CreateUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
+        </tr>
+        @if (Model.MenuItems.Count == 0)
+        {
+            <tr>
+                <td colspan="3" class="text-center">Нет ни одной учетной записи</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var user in Model.MenuItems)
+            {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.DateCreate</td>
+                <td>@user.AllRoles</td>  
+                <td>
+                    @using (Html.BeginForm("ConfirmDeleteUser", "Admin", new { id = user.Id }))
+                    {
+                        <button class="btn btn-danger btn-xs" type="submit">Удалить</button>
+                        @*@Html.ActionLink("Удалить", "DeleteUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-danger btn-xs" })*@
+                    }
+                    @using (Html.BeginForm("ConfirmEditUser", "Admin", new { id = user.Id }))
+                    {
+                        <button class="btn btn-default btn-xs" type="submit">Редактировать</button>
+                        @*@Html.ActionLink("Удалить", "DeleteUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-danger btn-xs" })*@
+                    }
+                </td> 
+            </tr>
+            }
+        }
+    </table>
+</div>
+
