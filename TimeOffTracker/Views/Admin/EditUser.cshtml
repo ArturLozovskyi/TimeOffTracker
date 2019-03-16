@@ -1,45 +1,44 @@
-﻿@model TimeOffTracker.Models.EditUserModel
+﻿@model TimeOffTracker.Models.EditUserViewModel
 @{
-    ViewBag.Title = "ConfirmEditUser";
+    ViewBag.Title = "Редактирование пользователя";
 }
 
-<h2>ConfirmEditUser</h2>
-@using (Html.BeginForm("DeleteUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("EditUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
-    <h4>Удалить запись? </h4>
-    <hr />
+    <h3>Редактирование записи </h3>
+
     @Html.ValidationSummary("", new { @class = "text-danger" })
     <div class="form-group">
         @Html.LabelFor(m => m.OldFullName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.OldFullName, new { @value = @Model.OldFullName, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.OldFullName, new {@readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(m => m.FullName, new { @class = "col-md-2 control-label" })
+        @Html.LabelFor(m => m.NewFullName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.FullName, new { @value = @Model.OldFullName, @class = "form-control" })
+            @Html.TextBoxFor(x => x.NewFullName, new { @class = "form-control" })
         </div>
     </div>
 
     <div class="form-group">
         @Html.LabelFor(m => m.OldEmail, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.OldEmail, new { @value = @Model.OldEmail, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.OldEmail, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
+        @Html.LabelFor(m => m.NewEmail, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.Email, new { @value = @Model.OldEmail, @class = "form-control" })
+            @Html.TextBoxFor(x => x.NewEmail, new {@class = "form-control" })
         </div>
     </div>
 
     <div class="form-group">
         @Html.LabelFor(m => m.OldRoles, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.OldRoles, new { @value = @Model.OldRoles, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.OldRoles, new {@readonly = "readonly", @class = "form-control" })
         </div>
     </div>
 
@@ -52,14 +51,14 @@
                     <label>
                         <input type="checkbox"
                                name="SelectedRoles"
-                               value="@item.Value" /> @item.Text
+                               value="@item.Value" checked="@item.Selected" /> @item.Text
                         </label>
                     </div>
             }
         </div>
     </div>
 
-    <input type="submit" class="btn btn-danger" value="Удалить запись" />
+    <input type="submit" class="btn btn-primary" value="Редактировать запись" />
 
     @Html.ActionLink("Отмена", "AdminUsersPanel", null, new { @class = "btn btn-default" })
 }

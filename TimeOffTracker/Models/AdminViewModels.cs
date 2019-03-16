@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace TimeOffTracker.Models
 {
-    public class CreateUserModel
+    public class CreateUserViewModel
     {
         [Required]
         [Display(Name = "ФИО")]
@@ -29,28 +29,41 @@ namespace TimeOffTracker.Models
         public IList<string> SelectedRoles { get; set; }
     }
 
-    public class EditUserModel
+    public class ChangeUserPasswordViewModel
+    {
+        [Display(Name = "ФИО")]
+        public string FullName { get; set; }
+
+        [Display(Name = "Адрес электронной почты")]
+        public string Email { get; set; }
+
+        [Display(Name = "Роли")]
+        public string AllRoles { get; set; }
+
+        [Display(Name = "Дата создания")]
+        public string DateCreate { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Новый пароль")]
+        public string NewPassword { get; set; }
+    }
+
+    public class EditUserViewModel
     {
         [Required]
         [Display(Name = "Новый ФИО")]
-        public string FullName { get; set; }
+        public string NewFullName { get; set; }
         [Display(Name = "Старый ФИО")]
         public string OldFullName { get; set; }
 
         [Required]
         [EmailAddress]
         [Display(Name = "Новый адрес электронной почты")]
-        public string Email { get; set; }
+        public string NewEmail { get; set; }
         [Display(Name = "Старый адрес электронной почты")]
         public string OldEmail { get; set; }
-
-        //[Required]
-        //[StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
-        //[DataType(DataType.Password)]
-        //[Display(Name = "Новый пароль")]
-        //public string Password { get; set; }
-        //[Display(Name = "Старый пароль")]
-        //public string OldPassword { get; set; }
 
         [Display(Name = "Новые роли")]
         public IList<SelectListItem> AvailableRoles { get; set; }
@@ -59,16 +72,20 @@ namespace TimeOffTracker.Models
         public string OldRoles { get; set; }
     }
 
-        public class ShowUsersInfo
+        public class ShowUserViewModel
     {
-        public string Id { get; set; }
+        [Display(Name = "ФИО")]
         public string FullName { get; set; }
+        [Display(Name = "Почта")]
         public string Email { get; set; }
+        [Display(Name = "Дата создания")]
         public string DateCreate { get; set; }
+        [Display(Name = "Роли")]
         public string AllRoles { get; set; }
+        public DateTime? LockoutTime { get; set; }
     }
-    public class ListShowUsersInfo
+    public class ListShowUserViewModel
     {
-        public IList<ShowUsersInfo> MenuItems { get; set; }
+        public IList<ShowUserViewModel> MenuItems { get; set; }
     }
 }
