@@ -29,6 +29,12 @@
         </div>
     </div>
     <div class="form-group">
+        @Html.LabelFor(m => m.EmploymentDate, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.EditorFor(x => x.EmploymentDate, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
         @Html.LabelFor(m => m.AvailableRoles, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
             @foreach (var item in Model.AvailableRoles)

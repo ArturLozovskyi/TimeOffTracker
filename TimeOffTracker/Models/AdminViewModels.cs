@@ -24,6 +24,11 @@ namespace TimeOffTracker.Models
         [Display(Name = "Пароль")]
         public string Password { get; set; }
 
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Дата приема на работу")]
+        public DateTime EmploymentDate { get; set; }
+
         [Display(Name = "Роли")]
         public IList<SelectListItem> AvailableRoles { get; set; }
         public IList<string> SelectedRoles { get; set; }
@@ -40,8 +45,8 @@ namespace TimeOffTracker.Models
         [Display(Name = "Роли")]
         public string AllRoles { get; set; }
 
-        [Display(Name = "Дата создания")]
-        public string DateCreate { get; set; }
+        [Display(Name = "Дата приема на работу")]
+        public string EmploymentDate { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
@@ -65,6 +70,16 @@ namespace TimeOffTracker.Models
         [Display(Name = "Старый адрес электронной почты")]
         public string OldEmail { get; set; }
 
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Новая дата приема на работу")]
+        //[DisplayFormat(ApplyFormatInEditMode = true)]
+        //[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd.MM.yyyy}")]
+        public DateTime NewEmploymentDate { get; set; }
+        [DataType(DataType.Date)]
+        [Display(Name = "Старая дата приема на работу")]
+        public string OldEmploymentDate { get; set; }
+
         [Display(Name = "Новые роли")]
         public IList<SelectListItem> AvailableRoles { get; set; }
         public IList<string> SelectedRoles { get; set; }
@@ -72,14 +87,14 @@ namespace TimeOffTracker.Models
         public string OldRoles { get; set; }
     }
 
-        public class ShowUserViewModel
+    public class ShowUserViewModel
     {
         [Display(Name = "ФИО")]
         public string FullName { get; set; }
         [Display(Name = "Почта")]
         public string Email { get; set; }
-        [Display(Name = "Дата создания")]
-        public string DateCreate { get; set; }
+        [Display(Name = "Дата приема на работу")]
+        public string EmploymentDate { get; set; }
         [Display(Name = "Роли")]
         public string AllRoles { get; set; }
         public DateTime? LockoutTime { get; set; }

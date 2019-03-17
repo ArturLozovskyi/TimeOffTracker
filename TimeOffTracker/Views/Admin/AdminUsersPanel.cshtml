@@ -13,7 +13,7 @@
         <tr>
             <th>Имя</th>
             <th>Email</th>
-            <th>Дата создания</th>
+            <th>Дата приема на работу</th>
             <th>Роли</th>
             <th>@Html.ActionLink("Создать", "CreateUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
         </tr>
@@ -32,7 +32,7 @@
                     <tr>
                         <td>@user.FullName</td>
                         <td>@user.Email</td>
-                        <td>@user.DateCreate</td>
+                        <td>@user.EmploymentDate</td>
                         <td>@user.AllRoles</td>
                         <td>
                             @using (Html.BeginForm("ConfirmSwitchLockoutUser", "Admin", FormMethod.Get))
@@ -58,7 +58,7 @@
                     <tr class="danger">
                         <td>@user.FullName</td>
                         <td>@user.Email</td>
-                        <td>@user.DateCreate</td>
+                        <td>@user.EmploymentDate</td>
                         <td>@user.AllRoles</td>
                         <td>
                             @using (Html.BeginForm("ConfirmSwitchLockoutUser", "Admin", FormMethod.Get))

@@ -15,17 +15,29 @@ namespace TimeOffTracker.Models
     public class ApplicationUser : IdentityUser
     {
         [Required]
-        [DisplayName("Кол-во дней отпуска в году")]
-        public int daysVacationInYear { get; set; }
-
-        [Required]
-        [DisplayName("Дата создания аккаунта")]
-        [Column(TypeName = "date")]
-        public DateTime dateCreateAccount { get; set; }
-
-        [Required]
         [DisplayName("ФИО")]
         public string FullName { get; set; }
+
+        [Required]
+        [DisplayName("Кол-во дней оплачиваемого отпуска")]
+        public int PaidVacationDays { get; set; }
+
+        [Required]
+        [DisplayName("Кол-во дней неоплачиваемого отпуска")]
+        public int UnpaidVacationDays { get; set; }
+
+        [Required]
+        [DisplayName("Кол-во дней ученического отпуска")]
+        public int StudyVacationDays { get; set; }
+
+        [Required]
+        [DisplayName("Кол-во дней отпуска по болезни")]
+        public int SickVacationDays { get; set; }
+
+        [Required]
+        [DisplayName("Дата приема на работу")]
+        [Column(TypeName = "date")]
+        public DateTime EmploymentDate { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
@@ -39,7 +51,7 @@ namespace TimeOffTracker.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection1", throwIfV1Schema: false)
+            : base("DefaultConnection2", throwIfV1Schema: false)
         {
         }
 

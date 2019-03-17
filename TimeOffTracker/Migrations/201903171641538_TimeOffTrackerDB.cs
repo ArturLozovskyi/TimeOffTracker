@@ -3,7 +3,7 @@ namespace TimeOffTracker.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitialCreate : DbMigration
+    public partial class TimeOffTrackerDB : DbMigration
     {
         public override void Up()
         {
@@ -35,9 +35,12 @@ namespace TimeOffTracker.Migrations
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
-                        daysVacationInYear = c.Int(nullable: false),
-                        dateCreateAccount = c.DateTime(nullable: false, storeType: "date"),
                         FullName = c.String(nullable: false),
+                        PaidVacationDays = c.Int(nullable: false),
+                        UnpaidVacationDays = c.Int(nullable: false),
+                        StudyVacationDays = c.Int(nullable: false),
+                        SickVacationDays = c.Int(nullable: false),
+                        EmploymentDate = c.DateTime(nullable: false, storeType: "date"),
                         Email = c.String(maxLength: 256),
                         EmailConfirmed = c.Boolean(nullable: false),
                         PasswordHash = c.String(),

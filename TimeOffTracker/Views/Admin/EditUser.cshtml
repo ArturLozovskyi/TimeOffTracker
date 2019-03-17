@@ -36,6 +36,20 @@
     </div>
 
     <div class="form-group">
+        @Html.LabelFor(m => m.OldEmploymentDate, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(x => x.OldEmploymentDate, new { @readonly = "readonly", @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.NewEmploymentDate, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.EditorFor(x => x.NewEmploymentDate, new {@class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group">
         @Html.LabelFor(m => m.OldRoles, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
             @Html.TextBoxFor(x => x.OldRoles, new {@readonly = "readonly", @class = "form-control" })

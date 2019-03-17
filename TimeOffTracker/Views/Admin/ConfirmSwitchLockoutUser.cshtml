@@ -4,7 +4,7 @@
     ViewBag.Title = "Блокировка записи";
 }
 
-@using (Html.BeginForm("SwitchLockoutUser", "Admin", new {@class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("SwitchLockoutUser", "Admin", FormMethod.Post, new {@class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
     if (Model.LockoutTime == null)
@@ -20,25 +20,25 @@
     <div class="form-group">
         @Html.LabelFor(m => m.FullName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.FullName, new { @value = @Model.FullName, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.FullName, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.Email, new { @value = @Model.Email, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.Email, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(m => m.DateCreate, new { @class = "col-md-2 control-label" })
+        @Html.LabelFor(m => m.EmploymentDate, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.DateCreate, new { @value = @Model.DateCreate, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.EmploymentDate, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.AllRoles, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.AllRoles, new { @value = @Model.AllRoles, @readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.AllRoles, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     if (Model.LockoutTime == null)

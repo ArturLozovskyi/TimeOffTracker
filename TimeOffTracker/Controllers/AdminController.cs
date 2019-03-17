@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace TimeOffTracker.Controllers
 {
-    public class AdminController : Controller
+      public class AdminController : Controller
     {
         [Authorize(Roles = "Admin")]
         public ActionResult AdminUsersPanel()
@@ -20,30 +20,30 @@ namespace TimeOffTracker.Controllers
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
                 ListShowUserViewModel model = new ListShowUserViewModel();
-
+                
                 var userList = (from user in context.Users
-                                orderby user.LockoutEndDateUtc
-                                select new
-                                {
-                                    FullName = user.FullName,
-                                    user.Email,
-                                    user.dateCreateAccount,
-                                    user.LockoutEndDateUtc,
-                                    RoleNames = (from userRole in user.Roles
-                                                 join role in context.Roles
-                                                 on userRole.RoleId
-                                                 equals role.Id
-                                                 select role.Name).ToList()
-
-                                }).ToList();
+                                     orderby user.LockoutEndDateUtc
+                                     select new
+                                     {
+                                         FullName = user.FullName
+                                         , user.Email
+                                         , user.EmploymentDate
+                                         , user.LockoutEndDateUtc
+                                         , RoleNames = (from userRole in user.Roles 
+                                                      join role in context.Roles 
+                                                      on userRole.RoleId
+                                                      equals role.Id
+                                                      select role.Name).ToList()
+                                       
+                                     }).ToList();
 
                 model.MenuItems = userList.Select(p => new ShowUserViewModel
                 {
-                    FullName = p.FullName,
-                    Email = p.Email,
-                    LockoutTime = p.LockoutEndDateUtc,
-                    AllRoles = string.Join(", ", p.RoleNames),
-                    DateCreate = p.dateCreateAccount.ToShortDateString()
+                    FullName = p.FullName
+                    , Email = p.Email
+                    , LockoutTime = p.LockoutEndDateUtc
+                    , AllRoles = string.Join(", ", p.RoleNames)
+                    , EmploymentDate = p.EmploymentDate.ToShortDateString()
                 }).ToList();
 
                 return View(model);
@@ -69,9 +69,25 @@ namespace TimeOffTracker.Controllers
 
             if (ModelState.IsValid)
             {
-                ApplicationUser user = new ApplicationUser { UserName = model.Email, Email = model.Email, FullName = model.FullName, daysVacationInYear = 28, dateCreateAccount = DateTime.Now.Date };
-                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                if(model.EmploymentDate > DateTime.Now)
+                {
+                    ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
+                    return View(model);
+                }
 
+                ApplicationUser user = new ApplicationUser
+                {
+                    UserName = model.Email
+                    , Email = model.Email
+                    , FullName = model.FullName
+                    , PaidVacationDays = 0
+                    , UnpaidVacationDays = 0
+                    , StudyVacationDays = 0
+                    , SickVacationDays = 0
+                    , EmploymentDate = model.EmploymentDate
+                };
+
+                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
@@ -110,11 +126,11 @@ namespace TimeOffTracker.Controllers
 
                     modelToConfirm = new ShowUserViewModel
                     {
-                        FullName = user.FullName,
-                        Email = user.Email,
-                        LockoutTime = user.LockoutEndDateUtc,
-                        AllRoles = string.Join(", ", userRoles),
-                        DateCreate = user.dateCreateAccount.ToShortDateString()
+                        FullName = user.FullName
+                        , Email = user.Email
+                        , LockoutTime = user.LockoutEndDateUtc
+                        , AllRoles = string.Join(", ", userRoles)
+                        , EmploymentDate = user.EmploymentDate.ToShortDateString()
                     };
 
                     return View(modelToConfirm);
@@ -139,7 +155,7 @@ namespace TimeOffTracker.Controllers
                 else
                 {
                     await UserManager.SetLockoutEndDateAsync(user.Id, DateTimeOffset.MinValue);
-                }
+                }              
             }
             else
             {
@@ -163,12 +179,14 @@ namespace TimeOffTracker.Controllers
 
                     modelToConfirmEdit = new EditUserViewModel
                     {
-                        OldFullName = user.FullName,
-                        NewFullName = user.FullName,
-                        OldEmail = user.Email,
-                        NewEmail = user.Email,
-                        OldRoles = string.Join(", ", userRoles),
-                        AvailableRoles = GetSelectListItemRoles(userRoles)
+                        OldFullName = user.FullName
+                        , NewFullName = user.FullName
+                        , OldEmail = user.Email
+                        , NewEmail = user.Email
+                        , OldEmploymentDate = user.EmploymentDate.ToShortDateString()
+                        , NewEmploymentDate = user.EmploymentDate
+                        , OldRoles = string.Join(", ", userRoles)
+                        , AvailableRoles = GetSelectListItemRoles(userRoles)
                     };
 
                     return View(modelToConfirmEdit);
@@ -205,6 +223,7 @@ namespace TimeOffTracker.Controllers
                 user.Email = model.NewEmail;
                 user.UserName = model.NewEmail;
                 user.FullName = model.NewFullName;
+                user.EmploymentDate = model.NewEmploymentDate;
 
                 result = await UserManager.UpdateAsync(user);
 
@@ -241,7 +260,7 @@ namespace TimeOffTracker.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult ChangeUserPassword(string email)
         {
-            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email))
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email)) 
             {
                 using (ApplicationDbContext context = new ApplicationDbContext())
                 {
@@ -252,11 +271,11 @@ namespace TimeOffTracker.Controllers
 
                     modelToConfirmChangePassword = new ChangeUserPasswordViewModel
                     {
-                        FullName = user.FullName,
-                        Email = user.Email,
-                        DateCreate = user.dateCreateAccount.ToShortDateString(),
-                        AllRoles = string.Join(", ", userRoles)
-                    };
+                        FullName = user.FullName
+                        , Email = user.Email
+                        , EmploymentDate = user.EmploymentDate.ToShortDateString()
+                        , AllRoles = string.Join(", ", userRoles)
+                    };                 
 
                     return View(modelToConfirmChangePassword);
                 }
@@ -274,7 +293,7 @@ namespace TimeOffTracker.Controllers
                 ApplicationUser user = await UserManager.FindByEmailAsync(model.Email);
                 IdentityResult result;
                 result = await UserManager.PasswordValidator.ValidateAsync(model.NewPassword);
-
+                
                 if (result.Succeeded)
                 {
                     string token = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
@@ -294,7 +313,7 @@ namespace TimeOffTracker.Controllers
         private void AddErrorsFromResult(IdentityResult result)
         {
             foreach (string error in result.Errors)
-            {
+            {                           
                 ModelState.AddModelError("", error);
             }
         }

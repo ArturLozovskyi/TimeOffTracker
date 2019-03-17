@@ -22,7 +22,17 @@ namespace TimeOffTracker.Migrations
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
             //  to avoid creating duplicate seed data.
 
-            ApplicationUser user = new ApplicationUser { UserName = "Admin@gmail.com", Email = "Admin@gmail.com", FullName = "Администратор", daysVacationInYear = 0, dateCreateAccount = DateTime.Now.Date };
+             ApplicationUser user = new ApplicationUser 
+            {
+                UserName = "Admin@gmail.com"
+                    , Email = "Admin@gmail.com"
+                    , FullName = "Administrator"
+                    , PaidVacationDays = 0
+                    , UnpaidVacationDays = 0
+                    , StudyVacationDays = 0
+                    , SickVacationDays = 0
+                    , EmploymentDate = DateTime.Now.Date
+            };
             var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             IdentityResult result = UserManager.Create(user, "Sfzom#231");
 
