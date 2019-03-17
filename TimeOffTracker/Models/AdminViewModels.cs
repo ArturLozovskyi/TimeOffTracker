@@ -72,9 +72,7 @@ namespace TimeOffTracker.Models
 
         [Required]
         [DataType(DataType.Date)]
-        [Display(Name = "Новая дата приема на работу")]
-        //[DisplayFormat(ApplyFormatInEditMode = true)]
-        //[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd.MM.yyyy}")]
+        [Display(Name = "Новая дата приема на работу")]      
         public DateTime NewEmploymentDate { get; set; }
         [DataType(DataType.Date)]
         [Display(Name = "Старая дата приема на работу")]

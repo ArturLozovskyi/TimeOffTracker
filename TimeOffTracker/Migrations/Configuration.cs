@@ -27,10 +27,6 @@ namespace TimeOffTracker.Migrations
                 UserName = "Admin@gmail.com"
                     , Email = "Admin@gmail.com"
                     , FullName = "Administrator"
-                    , PaidVacationDays = 0
-                    , UnpaidVacationDays = 0
-                    , StudyVacationDays = 0
-                    , SickVacationDays = 0
                     , EmploymentDate = DateTime.Now.Date
             };
             var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));

@@ -19,22 +19,6 @@ namespace TimeOffTracker.Models
         public string FullName { get; set; }
 
         [Required]
-        [DisplayName("Кол-во дней оплачиваемого отпуска")]
-        public int PaidVacationDays { get; set; }
-
-        [Required]
-        [DisplayName("Кол-во дней неоплачиваемого отпуска")]
-        public int UnpaidVacationDays { get; set; }
-
-        [Required]
-        [DisplayName("Кол-во дней ученического отпуска")]
-        public int StudyVacationDays { get; set; }
-
-        [Required]
-        [DisplayName("Кол-во дней отпуска по болезни")]
-        public int SickVacationDays { get; set; }
-
-        [Required]
         [DisplayName("Дата приема на работу")]
         [Column(TypeName = "date")]
         public DateTime EmploymentDate { get; set; }
@@ -51,7 +35,7 @@ namespace TimeOffTracker.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("DefaultConnection2", throwIfV1Schema: false)
+            : base("DefaultConnection3", throwIfV1Schema: false)
         {
         }
 

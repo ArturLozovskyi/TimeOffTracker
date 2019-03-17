@@ -13,7 +13,7 @@ namespace TimeOffTracker.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201903171641538_TimeOffTrackerDB"; }
+            get { return "201903171925231_TimeOffTrackerDB"; }
         }
         
         string IMigrationMetadata.Source

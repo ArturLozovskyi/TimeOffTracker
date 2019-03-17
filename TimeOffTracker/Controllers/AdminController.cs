@@ -80,10 +80,6 @@ namespace TimeOffTracker.Controllers
                     UserName = model.Email
                     , Email = model.Email
                     , FullName = model.FullName
-                    , PaidVacationDays = 0
-                    , UnpaidVacationDays = 0
-                    , StudyVacationDays = 0
-                    , SickVacationDays = 0
                     , EmploymentDate = model.EmploymentDate
                 };
 
