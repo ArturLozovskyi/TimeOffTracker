@@ -196,17 +196,19 @@ namespace TimeOffTracker.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditUser(EditUserViewModel model)
         {
+            model.AvailableRoles = GetSelectListItemRoles(model.SelectedRoles);
 
             if (ModelState.IsValid)
             {
+                if (model.NewEmploymentDate > DateTime.Now)
+                {
+                    ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
+                    return View(model);
+                }
                 ApplicationUser user = await UserManager.FindByEmailAsync(model.OldEmail);
-
                 var rolesUser = await UserManager.GetRolesAsync(user.Id);
-                model.AvailableRoles = GetSelectListItemRoles(rolesUser);
 
                 IdentityResult result;
-
-
                 if (rolesUser.Count() > 0)
                 {
                     //Удалаем все старые роли перед обновлением
