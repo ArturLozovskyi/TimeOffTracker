@@ -61,11 +61,10 @@ namespace TimeOffTracker.Controllers
         }
 
         [HttpPost]
-
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> CreateUser(CreateUserViewModel model)
         {
-            model.AvailableRoles = GetSelectListItemRoles();
+            model.AvailableRoles = GetSelectListItemRoles(model.SelectedRoles);
 
             if (ModelState.IsValid)
             {
@@ -243,14 +242,6 @@ namespace TimeOffTracker.Controllers
                 {
                     AddErrorsFromResult(result);
                 }
-            }
-            if (!string.IsNullOrWhiteSpace(model.OldEmail))
-            {
-                ApplicationUser user = await UserManager.FindByEmailAsync(model.OldEmail);
-
-                IList<string> rolesUser = await UserManager.GetRolesAsync(user.Id);
-                model.AvailableRoles = GetSelectListItemRoles(rolesUser);
-
             }
             return View(model);
         }
