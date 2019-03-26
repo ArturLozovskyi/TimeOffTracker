@@ -1,7 +1,6 @@
 ﻿@using TimeOffTracker.Models;
 @using TimeOffTracker.Controllers;
-@*@model IEnumerable<ApplicationUserRole>*@
-@model ListShowUsersInfo
+@model ListShowUserViewModel
 @{
     ViewBag.Title = "AdminUsersPanel";
 }
@@ -14,7 +13,7 @@
         <tr>
             <th>Имя</th>
             <th>Email</th>
-            <th>Дата создания</th>
+            <th>Дата приема на работу</th>
             <th>Роли</th>
             <th>@Html.ActionLink("Создать", "CreateUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
         </tr>
@@ -28,24 +27,48 @@
         {
             foreach (var user in Model.MenuItems)
             {
-            <tr>
-                <td>@user.FullName</td>
-                <td>@user.Email</td>
-                <td>@user.DateCreate</td>
-                <td>@user.AllRoles</td>  
-                <td>
-                    @using (Html.BeginForm("ConfirmDeleteUser", "Admin", new { id = user.Id }))
-                    {
-                        <button class="btn btn-danger btn-xs" type="submit">Удалить</button>
-                        @*@Html.ActionLink("Удалить", "DeleteUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-danger btn-xs" })*@
-                    }
-                    @using (Html.BeginForm("ConfirmEditUser", "Admin", new { id = user.Id }))
-                    {
-                        <button class="btn btn-default btn-xs" type="submit">Редактировать</button>
-                        @*@Html.ActionLink("Удалить", "DeleteUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-danger btn-xs" })*@
-                    }
-                </td> 
-            </tr>
+                if (user.LockoutTime == null)
+                {
+                    <tr>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@user.EmploymentDate</td>
+                        <td>@user.AllRoles</td>
+                        <td>
+                            @using (Html.BeginForm("ConfirmSwitchLockoutUser", "Admin", FormMethod.Get))
+                            {
+                                <input type="hidden" value="@user.Email" name="email" />
+                                <button class="btn btn-danger btn-xs" type="submit">Заблокировать</button>
+                            }
+                            @using (Html.BeginForm("EditUser", "Admin", FormMethod.Get))
+                            {
+                                <input type="hidden" value="@user.Email" name="email" />
+                                <button class="btn btn-default btn-xs" type="submit">Редактировать</button>
+                            }
+                            @using (Html.BeginForm("ChangeUserPassword", "Admin", FormMethod.Get))
+                            {                         
+                                <input type="hidden" value="@user.Email" name="email" />
+                                <button class="btn btn-warning btn-xs" type="submit">Сбросить пароль</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr class="danger">
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@user.EmploymentDate</td>
+                        <td>@user.AllRoles</td>
+                        <td>
+                            @using (Html.BeginForm("ConfirmSwitchLockoutUser", "Admin", FormMethod.Get))
+                            {
+                                <input type="hidden" value="@user.Email" name="email" />
+                                <button class="btn btn-success btn-xs" type="submit">Разблокировать</button>
+                            }                         
+                        </td>
+                    </tr>
+                }
             }
         }
     </table>
