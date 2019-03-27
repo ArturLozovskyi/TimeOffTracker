@@ -28,7 +28,7 @@ namespace TimeOffTracker.Migrations
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
             //  to avoid creating duplicate seed data.
 
-            ListRequestModel user = new ListRequestModel
+            ApplicationUser user = new ApplicationUser
             {
                 UserName = "Admin@gmail.com",
                 Email = "Admin@gmail.com",
@@ -36,7 +36,7 @@ namespace TimeOffTracker.Migrations
                 EmploymentDate = DateTime.Now.Date
             };
             
-            var UserManager = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             IdentityResult result = UserManager.Create(user, "Sfzom#231");
 
             if (result.Succeeded)
@@ -60,7 +60,7 @@ namespace TimeOffTracker.Migrations
         private void CreateTestRequest(ApplicationDbContext context)
         {
             //@
-            ListRequestModel startPerson = new ListRequestModel
+            ApplicationUser startPerson = new ApplicationUser
             {
                 UserName = "employee2@gmail.com",
                 Email = "employee2@gmail.com",
@@ -68,26 +68,26 @@ namespace TimeOffTracker.Migrations
                 EmploymentDate = DateTime.Now.Date
             };
 
-            var userManager = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             if (userManager.Create(startPerson, "123456-Pass").Succeeded)
             { userManager.AddToRole(startPerson.Id, "Employee"); }
             //@
 
             //@
-            ListRequestModel startPerson2 = new ListRequestModel
+            ApplicationUser startPerson2 = new ApplicationUser
             {
                 UserName = "employee3@gmail.com",
                 Email = "employee3@gmail.com",
                 FullName = "Employee",
                 EmploymentDate = DateTime.Now.Date
             };
-            var userManager12 = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var userManager12 = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             if (userManager12.Create(startPerson2, "123456-Pass").Succeeded)
             { userManager12.AddToRole(startPerson2.Id, "Employee"); }
             //@
 
             //@
-            ListRequestModel startManager = new ListRequestModel
+            ApplicationUser startManager = new ApplicationUser
             {
                 UserName = "manager2@gmail.com",
                 Email = "manager2@gmail.com",
@@ -95,13 +95,13 @@ namespace TimeOffTracker.Migrations
                 EmploymentDate = DateTime.Now.Date
             };
 
-            var userManager2 = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var userManager2 = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             if (userManager2.Create(startManager, "123456-Pass").Succeeded)
             { userManager2.AddToRole(startManager.Id, "Manager"); }
             //@
 
             //@
-            ListRequestModel middleManager = new ListRequestModel
+            ApplicationUser middleManager = new ApplicationUser
             {
                 UserName = "manager3@gmail.com",
                 Email = "manager3@gmail.com",
@@ -109,13 +109,13 @@ namespace TimeOffTracker.Migrations
                 EmploymentDate = DateTime.Now.Date
             };
 
-            var userManager3 = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var userManager3 = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             if (userManager3.Create(middleManager, "123456-Pass").Succeeded)
             { userManager3.AddToRole(middleManager.Id, "Manager"); }
             //@
 
             //@
-            ListRequestModel endManager = new ListRequestModel
+            ApplicationUser endManager = new ApplicationUser
             {
                 UserName = "manager4@gmail.com",
                 Email = "manager4@gmail.com",
@@ -123,7 +123,7 @@ namespace TimeOffTracker.Migrations
                 EmploymentDate = DateTime.Now.Date
             };
 
-            var userManager4 = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var userManager4 = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             if (userManager4.Create(endManager, "123456-Pass").Succeeded)
             { userManager4.AddToRole(endManager.Id, "Manager"); }
 
@@ -224,7 +224,7 @@ namespace TimeOffTracker.Migrations
         // Стандартный пароль для менеджера и рабочего: 123456-Pass
         private void CreatePerson(ApplicationDbContext context, string email, string role)
         {
-            ListRequestModel startPerson = new ListRequestModel
+            ApplicationUser startPerson = new ApplicationUser
             {
                 UserName = email,
                 Email = email,
@@ -232,7 +232,7 @@ namespace TimeOffTracker.Migrations
                 EmploymentDate = DateTime.Now.Date
             };
 
-            var userManager = new UserManager<ListRequestModel>(new UserStore<ListRequestModel>(context));
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             if (userManager.Create(startPerson, "123456-Pass").Succeeded)
             {
                 userManager.AddToRole(startPerson.Id, role);
