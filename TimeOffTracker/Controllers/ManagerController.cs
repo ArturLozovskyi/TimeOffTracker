@@ -48,9 +48,9 @@ namespace TimeOffTracker.Controllers.ManagerControllers
                 {
                     context.Entry(request).State = EntityState.Modified;
 
-                    RequestStatuses status = context.RequestStatuses.Find(1);   // Подтвержден
+                    RequestStatuses status = context.RequestStatuses.Find(1);
                     request.Status = status;
-                    context.SaveChanges();  // ?   
+                    context.SaveChanges();
                 }
 
             }
