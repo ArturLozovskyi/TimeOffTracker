@@ -14,5 +14,6 @@ namespace TimeOffTracker.Models.ManagerModels
         public DateTime DateEnd { get; set; }
         public string VacationType { get; set; }
         public string Description { get; set; }
+        public string Reason { get; set; }
     }
 }

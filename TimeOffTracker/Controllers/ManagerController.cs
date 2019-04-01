@@ -37,12 +37,11 @@ namespace TimeOffTracker.Controllers.ManagerControllers
         public ActionResult Confirm(int? id)
         {
             string idUser = User.Identity.GetUserId();
-             if (id == null) { return HttpNotFound(); }
+            if (id == null) { return HttpNotFound(); }
 
             // Менять статус на подтверждено
             using (var context = new ApplicationDbContext())
             {
-
                 RequestChecks request = context.RequestChecks.Find(id);
                 if (request != null)
                 {
@@ -52,7 +51,6 @@ namespace TimeOffTracker.Controllers.ManagerControllers
                     request.Status = status;
                     context.SaveChanges();
                 }
-
             }
 
             var model = new ListActiveRequests(idUser);
@@ -62,11 +60,37 @@ namespace TimeOffTracker.Controllers.ManagerControllers
 
         [HttpPost]
         [Authorize(Roles = "Manager")]
-        public ActionResult Reject()
+        public ActionResult Reject(int? id, string reason)
         {
-            // Менять статус на отклонено у всех последующих аппров
+            string idUser = User.Identity.GetUserId();
+            if (id == null) { return HttpNotFound(); }
 
-            return View();
+            using (var context = new ApplicationDbContext())
+            {
+                RequestChecks request = context.RequestChecks.Find(id);
+                if (request != null)
+                {
+                    var rej = context.RequestChecks
+                        .Where(w => w.Request.Id == request.Request.Id)
+                        .Where(e => e.Priority >= request.Priority)
+                        .OrderBy(o => o.Priority)
+                        .ToList();
+
+                    RequestStatuses statusReject = context.RequestStatuses.Find(2);
+                    for (int i = 0; i < rej.Count; i++)
+                    {
+                        context.Entry(rej[i]).State = EntityState.Modified;
+                        rej[i].Status = statusReject;
+                        if (i == 0) { rej[i].Reason = reason; }
+                    }
+                    
+                    context.SaveChanges();
+                }
+            }
+
+            var model = new ListActiveRequests(idUser);
+            var m = model.GetListRequestsModel();
+            return View("ManagerPanel", m);
         }
     }
 }

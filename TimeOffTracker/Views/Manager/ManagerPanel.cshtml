@@ -9,53 +9,59 @@
     Ты менеджер, это очень хорошо! Ниже показаны все активные заявки. Помоги своему сотруднику пойти в отпуск,
     или оставь бедолагу работать дальше!
 </span>
-<br/>
-<br/>
 
+<br/><br />
 
 <div class="panel panel-primary">
-    <table class="table table-striped">
-        <tr>
-            <th>Имя рабочего</th>
-            <th>Email</th>
-            <th>С</th>
-            <th>По</th>
-            <th>Тип отпуска</th>
-            <th>Описание</th>
-        </tr>
-        @{
-            if (Model.Items.Count == 0)
-            {
-                <span style="font-size:x-large; text-align:center;">
-                    Нет активных запросов
-                </span>
-            }
-            else // Всунуть сюда таблицу, так будет по феншую
-            {
-                foreach (var request in Model.Items)
+    <table class="table table-striped table-hover">
+        <tbody id="parent">
+            <tr>
+                <th>Имя рабочего</th>
+                <th>Email</th>
+                <th>С</th>
+                <th>По</th>
+                <th>Тип отпуска</th>
+                <th>Описание</th>
+                <th>Результат</th>
+            </tr>
+            @{
+                if (Model.Items.Count == 0)
                 {
-                    <tr>
-                        <td>@request.FullNameEmployee</td>
-                        <td>@request.EmailEmployee</td>
-                        <td>@request.DateStart</td>
-                        <td>@request.DateEnd</td>
-                        <td>@request.VacationType</td>
-                        <td>@request.Description</td>
-                        <td>
-                            @using (Html.BeginForm("Confirm", "Manager", FormMethod.Post))
-                            {
-                                <input type="hidden" value="@request.Id" name="id" />
-                                <button type="submit" class="btn">Подтвердить</button>
-                            }
-                            @using (Html.BeginForm("Reject", "DecisionManager", FormMethod.Post))
-                            {
-                                <button type="submit" class="btn">Отказ</button>
-                            }
-                        </td>
-                    </tr>
+                    <span style="font-size:x-large; text-align:center;">
+                        Нет активных запросов
+                    </span>
                 }
+                else
+                {
+                    foreach (var request in Model.Items)
+                    {
+                        <tr>
+                            <td>@request.FullNameEmployee</td>
+                            <td>@request.EmailEmployee</td>
+                            <td>@request.DateStart</td>
+                            <td>@request.DateEnd</td>
+                            <td>@request.VacationType</td>
+                            <td>@request.Description</td>
+                            <td>
+                                @using (Html.BeginForm("Confirm", "Manager", FormMethod.Post))
+                                {
+                                    <input type="hidden" value="@request.Id" name="id" />
+                                    <button type="submit" class="btn">Подтвердить</button>
+                                }
+                                <button class="trigger-btn btn" id="reject-btn">Отказ</button>
+                                @using (Html.BeginForm("Reject", "Manager", FormMethod.Post, htmlAttributes: new { @class = "form-reject-request" }))
+                                {
+                                    <input type="hidden" value="@request.Id" name="id" />
+                                    <input type="text" value="@request.Reason" name="reason" required /><br />
+                                    <button type="submit" class="btn">Подтвердить отказ</button>
+                                }
+                                <button class="btn btn-cancel-reject" onclick="cancelReject()">Отмена</button>
+                            </td>
+                        </tr>
+                    }
 
+                }
             }
-        }
+        </tbody>
     </table>
 </div>
