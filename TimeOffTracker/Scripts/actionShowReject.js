@@ -6,7 +6,7 @@ parent.addEventListener('click', function (event) {
 
     console.log(event)
 
-    if (event.target.matches('.trigger-btn')) 
+    if (event.target.matches('.trigger-btn')) {
         event.preventDefault()
 
         let point = event.target.parentElement;
@@ -18,8 +18,7 @@ parent.addEventListener('click', function (event) {
         // Hide reject button
         $(point).children('#reject-btn').css('display', 'none');
     }
-
-    if (event.target.matches('.btn-cancel-reject')) {
+    else if (event.target.matches('.btn-cancel-reject')) {
         event.preventDefault()
         let point = event.target.parentElement;
         $(point).children('.form-reject-request').css('display', 'none');
