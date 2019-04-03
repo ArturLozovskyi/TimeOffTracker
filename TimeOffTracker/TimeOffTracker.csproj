@@ -184,6 +184,7 @@
     <Compile Include="AutofacConfig.cs" />
     <Compile Include="Business\AdminDataModel.cs" />
     <Compile Include="Business\IAdminDataModel.cs" />
+    <Compile Include="Business\IListActiveRequests.cs" />
     <Compile Include="Business\ListActiveRequests.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />

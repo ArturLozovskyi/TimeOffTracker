@@ -13,6 +13,13 @@ namespace TimeOffTracker.Controllers.ManagerControllers
 {
     public class ManagerController : Controller
     {
+        IListActiveRequests listActiveRequests;
+
+        public ManagerController(IListActiveRequests listActiveRequests)
+        {
+            this.listActiveRequests = listActiveRequests;
+        }
+
         // GET: Manager
         public ActionResult Index()
         {
@@ -28,8 +35,10 @@ namespace TimeOffTracker.Controllers.ManagerControllers
 
             string id = User.Identity.GetUserId();      //Узнать ID активного пользователя
 
-            var model = new ListActiveRequests(id);
-            return View(model.GetListRequestsModel());
+            return View(listActiveRequests.GetListRequestsModel(id));
+
+            //var model = new ListActiveRequests(id);
+            //return View(model.GetListRequestsModel());
         }
 
         [HttpPost]
@@ -39,6 +48,11 @@ namespace TimeOffTracker.Controllers.ManagerControllers
             string idUser = User.Identity.GetUserId();
             if (id == null) { return HttpNotFound(); }
 
+            listActiveRequests.Confirm(id);
+            return View("ManagerPanel", listActiveRequests.GetListRequestsModel(idUser));
+            
+            
+            /*
             // Менять статус на подтверждено
             using (var context = new ApplicationDbContext())
             {
@@ -52,10 +66,11 @@ namespace TimeOffTracker.Controllers.ManagerControllers
                     context.SaveChanges();
                 }
             }
+            */
 
-            var model = new ListActiveRequests(idUser);
-            var m = model.GetListRequestsModel();
-            return View("ManagerPanel", m);
+            //var model = new ListActiveRequests(idUser);
+            //var m = model.GetListRequestsModel();
+            //return View("ManagerPanel", m);
         }
 
         [HttpPost]
@@ -64,33 +79,12 @@ namespace TimeOffTracker.Controllers.ManagerControllers
         {
             string idUser = User.Identity.GetUserId();
             if (id == null) { return HttpNotFound(); }
+            listActiveRequests.Reject(id, reason);
+            return View("ManagerPanel", listActiveRequests.GetListRequestsModel(idUser));
 
-            using (var context = new ApplicationDbContext())
-            {
-                RequestChecks request = context.RequestChecks.Find(id);
-                if (request != null)
-                {
-                    var rej = context.RequestChecks
-                        .Where(w => w.Request.Id == request.Request.Id)
-                        .Where(e => e.Priority >= request.Priority)
-                        .OrderBy(o => o.Priority)
-                        .ToList();
-
-                    RequestStatuses statusReject = context.RequestStatuses.Find(2);
-                    for (int i = 0; i < rej.Count; i++)
-                    {
-                        context.Entry(rej[i]).State = EntityState.Modified;
-                        rej[i].Status = statusReject;
-                        if (i == 0) { rej[i].Reason = reason; }
-                    }
-                    
-                    context.SaveChanges();
-                }
-            }
-
-            var model = new ListActiveRequests(idUser);
-            var m = model.GetListRequestsModel();
-            return View("ManagerPanel", m);
+            // var model = new ListActiveRequests(idUser);
+            // var m = model.GetListRequestsModel();
+            // return View("ManagerPanel", m);
         }
     }
 }
