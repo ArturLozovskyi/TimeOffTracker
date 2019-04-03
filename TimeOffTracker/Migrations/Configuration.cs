@@ -17,8 +17,8 @@ namespace TimeOffTracker.Migrations
         }
 
         /*
-        * Исправить почту, которая будет начинаться с маленькой буквы
-        * Больничный отпуск ?
+        * РСЃРїСЂР°РІРёС‚СЊ РїРѕС‡С‚Сѓ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ РјР°Р»РµРЅСЊРєРѕР№ Р±СѓРєРІС‹
+        * Р‘РѕР»СЊРЅРёС‡РЅС‹Р№ РѕС‚РїСѓСЃРє ?
         */
 
         protected override void Seed(TimeOffTracker.Models.ApplicationDbContext context)
@@ -48,11 +48,11 @@ namespace TimeOffTracker.Migrations
                 result = UserManager.AddToRole(user.Id, "Admin");
             }
 
-            InitVacationTypes(context);     // Инициализация типов отпусков и кол-ва максимально возможных дней для них
-            InitRequestStatuses(context);   // Инициализация статусов ожиданий
-            CreateStartPeople(context);     // Добавление в БД несколько работников
+            InitVacationTypes(context);     // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С‚РёРїРѕРІ РѕС‚РїСѓСЃРєРѕРІ Рё РєРѕР»-РІР° РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅС‹С… РґРЅРµР№ РґР»СЏ РЅРёС…
+            InitRequestStatuses(context);   // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃС‚Р°С‚СѓСЃРѕРІ РѕР¶РёРґР°РЅРёР№
+            CreateStartPeople(context);     // Р”РѕР±Р°РІР»РµРЅРёРµ РІ Р‘Р” РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р±РѕС‚РЅРёРєРѕРІ
 
-            // Создание запроса ( убрать, когда будет реализована возможность создания запроса )
+            // РЎРѕР·РґР°РЅРёРµ Р·Р°РїСЂРѕСЃР° ( СѓР±СЂР°С‚СЊ, РєРѕРіРґР° Р±СѓРґРµС‚ СЂРµР°Р»РёР·РѕРІР°РЅР° РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ Р·Р°РїСЂРѕСЃР° )
             CreateTestRequest(context);
             
         }
@@ -130,8 +130,8 @@ namespace TimeOffTracker.Migrations
 
 
 
-            // Тестовый тип отпуска
-            var vacationType = new VacationTypes() { Name = "Тестовый", MaxDays = 10 };
+            // РўРµСЃС‚РѕРІС‹Р№ С‚РёРї РѕС‚РїСѓСЃРєР°
+            var vacationType = new VacationTypes() { Name = "РўРµСЃС‚РѕРІС‹Р№", MaxDays = 10 };
 
             Requests requests = new Requests()
             {
@@ -139,7 +139,7 @@ namespace TimeOffTracker.Migrations
                 VacationTypes = vacationType,
                 DateStart = DateTime.Now.Date,
                 DateEnd = DateTime.Now.AddDays(5),
-                Description = "Хочу в отпуск"
+                Description = "РҐРѕС‡Сѓ РІ РѕС‚РїСѓСЃРє"
             };
             context.Requests.Add(requests);
 
@@ -149,11 +149,11 @@ namespace TimeOffTracker.Migrations
                 VacationTypes = vacationType,
                 DateStart = DateTime.Now.Date.AddDays(2),
                 DateEnd = DateTime.Now.AddDays(7),
-                Description = "Друг идет в армию"
+                Description = "Р”СЂСѓРі РёРґРµС‚ РІ Р°СЂРјРёСЋ"
             };
             context.Requests.Add(requests2);
-            // Зависимость в ManageController.cs
-            RequestStatuses status = new RequestStatuses() { Name = "Ожидание1" };
+            // Р—Р°РІРёСЃРёРјРѕСЃС‚СЊ РІ ManageController.cs
+            RequestStatuses status = new RequestStatuses() { Name = "РћР¶РёРґР°РЅРёРµ1" };
             RequestChecks requestChecks = new RequestChecks()
             {
                 Request = requests,
@@ -189,14 +189,14 @@ namespace TimeOffTracker.Migrations
             context.RequestChecks.AddRange(new List<RequestChecks>() { requestChecks, requestChecks1, requestChecks2 });
         }
 
-        // Зависимость в ListActiveRequest.cs
+        // Р—Р°РІРёСЃРёРјРѕСЃС‚СЊ РІ ListActiveRequest.cs
         private void InitRequestStatuses(ApplicationDbContext context)
         {
             var requestStatuses = new List<RequestStatuses>()
             {
-                new RequestStatuses(){ Name = "Подтвержден" },
-                new RequestStatuses(){ Name = "Отказано" },
-                new RequestStatuses(){ Name = "Ожидание" }
+                new RequestStatuses(){ Name = "РџРѕРґС‚РІРµСЂР¶РґРµРЅ" },
+                new RequestStatuses(){ Name = "РћС‚РєР°Р·Р°РЅРѕ" },
+                new RequestStatuses(){ Name = "РћР¶РёРґР°РЅРёРµ" }
             };
 
             context.RequestStatuses.AddRange(requestStatuses);
@@ -205,23 +205,23 @@ namespace TimeOffTracker.Migrations
         private void InitVacationTypes(ApplicationDbContext context)
         {
             List<VacationTypes> vacationTypes = new List<VacationTypes>() {
-                new VacationTypes(){ Name = "Административный", MaxDays = 15 },
-                new VacationTypes(){ Name = "Учебный", MaxDays = 10 },
-                new VacationTypes(){ Name = "Больничный", MaxDays = 30 }, // Мутный отпуск 
-                new VacationTypes(){ Name = "Ежегодный", MaxDays = 20 }
+                new VacationTypes(){ Name = "РђРґРјРёРЅРёСЃС‚СЂР°С‚РёРІРЅС‹Р№", MaxDays = 15 },
+                new VacationTypes(){ Name = "РЈС‡РµР±РЅС‹Р№", MaxDays = 10 },
+                new VacationTypes(){ Name = "Р‘РѕР»СЊРЅРёС‡РЅС‹Р№", MaxDays = 30 }, // РњСѓС‚РЅС‹Р№ РѕС‚РїСѓСЃРє 
+                new VacationTypes(){ Name = "Р•Р¶РµРіРѕРґРЅС‹Р№", MaxDays = 20 }
             };
             context.VacationTypes.AddRange(vacationTypes);
         }
 
-        // Стандартный набор чуваков
+        // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РЅР°Р±РѕСЂ С‡СѓРІР°РєРѕРІ
         private void CreateStartPeople(ApplicationDbContext context)
         {
             CreatePerson(context, "manager1@gmail.com", "Manager");
             CreatePerson(context, "employee1@gmail.com", "Employee");
         }
 
-        // Создание чувака
-        // Стандартный пароль для менеджера и рабочего: 123456-Pass
+        // РЎРѕР·РґР°РЅРёРµ С‡СѓРІР°РєР°
+        // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РїР°СЂРѕР»СЊ РґР»СЏ РјРµРЅРµРґР¶РµСЂР° Рё СЂР°Р±РѕС‡РµРіРѕ: 123456-Pass
         private void CreatePerson(ApplicationDbContext context, string email, string role)
         {
             ApplicationUser startPerson = new ApplicationUser
