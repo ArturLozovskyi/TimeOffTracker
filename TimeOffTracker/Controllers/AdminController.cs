@@ -8,80 +8,56 @@ using System;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Linq;
 using System.Collections.Generic;
-
+using TimeOffTracker.Business;
 
 namespace TimeOffTracker.Controllers
 {
     public class AdminController : Controller
     {
+        IAdminDataModel _adminDataModel;
+
+        public AdminController(IAdminDataModel adminDataModel)
+        {
+            _adminDataModel = adminDataModel;
+        }
+
         [Authorize(Roles = "Admin")]
         public ActionResult AdminUsersPanel()
         {
-            using (ApplicationDbContext context = new ApplicationDbContext())
-            {
-                ListShowUsersInfo model = new ListShowUsersInfo();
-
-                var userList = (from user in context.Users
-                                     select new
-                                     {
-                                         UserId = user.Id,
-                                         FullName = user.FullName,
-                                         user.Email,
-                                         user.dateCreateAccount,
-
-                                         RoleNames = (from userRole in user.Roles 
-                                                      join role in context.Roles 
-                                                      on userRole.RoleId
-                                                      equals role.Id
-                                                      select role.Name).ToList()
-                                     }).ToList();
-
-                model.MenuItems = userList.Select(p => new ShowUsersInfo
-                {
-                    Id = p.UserId,
-                    FullName = p.FullName,
-                    Email = p.Email,
-                    AllRoles = string.Join(", ", p.RoleNames),
-                    DateCreate = p.dateCreateAccount.ToShortDateString()
-                }).ToList();
-
-                return View(model);
-            }
+            return View(_adminDataModel.GetAllUsersForShow());
         }
+
+
 
         [Authorize(Roles = "Admin")]
         public ActionResult CreateUser()
         {
-            CreateUserModel model = new CreateUserModel
+            CreateUserViewModel model = new CreateUserViewModel
             {
-                AvailableRoles = GetSelectListRoles()
+                AvailableRoles = _adminDataModel.GetSelectListItemRoles()
             };
             return View(model);
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> CreateUser(CreateUserModel model)
+        public ActionResult CreateUser(CreateUserViewModel model)
         {
-            model.AvailableRoles = GetSelectListRoles();
+            model.AvailableRoles = _adminDataModel.GetSelectListItemRoles(model.SelectedRoles);
 
             if (ModelState.IsValid)
             {
-                ApplicationUser user = new ApplicationUser { UserName = model.Email, Email = model.Email, FullName = model.FullName, daysVacationInYear = 28, dateCreateAccount = DateTime.Now.Date};
-                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                if (model.EmploymentDate > DateTime.Now)
+                {
+                    ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
+                    return View(model);
+                }
 
+                IdentityResult result = _adminDataModel.CreateUser(UserManager, model);
 
                 if (result.Succeeded)
                 {
-                    foreach (string role in model.SelectedRoles)
-                    {
-                        result = UserManager.AddToRole(user.Id, role);
-                    }
-                    if (result.Succeeded)
-                    {
-                        return RedirectToAction("AdminUsersPanel");
-                    }
+                    return RedirectToAction("AdminUsersPanel");
                 }
                 else
                 {
@@ -91,183 +67,112 @@ namespace TimeOffTracker.Controllers
             return View(model);
         }
 
+
+
         [Authorize(Roles = "Admin")]
-        private IList<SelectListItem> GetSelectListRoles()
+        public ActionResult ConfirmSwitchLockoutUser(string email)
         {
-            using (ApplicationDbContext context = new ApplicationDbContext())
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email))
             {
-                List<SelectListItem> result = new List<SelectListItem>();
-                foreach (IdentityRole role in context.Roles)
-                {
-                    result.Add(new SelectListItem { Text = role.Name, Value = role.Name });
-                }
-                return result;
-            }
-            
-        }
-
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public ActionResult ConfirmDeleteUser(ShowUsersInfo model)
-        {
-            if (ModelState.IsValid)
-            {
-                using (ApplicationDbContext context = new ApplicationDbContext())
-                {
-                    ShowUsersInfo modelToConfirm = new ShowUsersInfo();
-
-                    var userList = (from user in context.Users where user.Id == model.Id
-                                    select new
-                                    {
-                                        UserId = user.Id,
-                                        FullName = user.FullName,
-                                        user.Email,
-                                        user.dateCreateAccount,
-
-                                        RoleNames = (from userRole in user.Roles 
-                                                     join role in context.Roles 
-                                                     on userRole.RoleId
-                                                     equals role.Id
-                                                     select role.Name).ToList()
-                                    }
-                                    ).ToList();
-
-                    modelToConfirm = userList.Select(p => new ShowUsersInfo
-                    {
-                        Id = p.UserId,
-                        FullName = p.FullName,
-                        Email = p.Email,
-                        AllRoles = string.Join(", ", p.RoleNames),
-                        DateCreate = p.dateCreateAccount.ToShortDateString()
-                    }).First();
-
-                    return View(modelToConfirm);
-                }
-            }
-            return View(model);
-
-        }
-
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DeleteUser(ShowUsersInfo model)
-        {
-            if (ModelState.IsValid)
-            {
-                ApplicationUser user = await UserManager.FindByNameAsync(model.Email);
-
-                var rolesUser = await UserManager.GetRolesAsync(user.Id);
-
-                if (rolesUser.Count() > 0)
-                {
-                    foreach (var item in rolesUser.ToList())
-                    {
-
-                        var result = await UserManager.RemoveFromRoleAsync(user.Id, item);
-                    }
-                }
-
-                await UserManager.DeleteAsync(user);
-            }
-            else
-            {
-                return View(model);
+                return View(_adminDataModel.GetUserForShowByEmail(UserManager, email));
             }
             return RedirectToAction("AdminUsersPanel");
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public ActionResult ConfirmEditUser(ShowUsersInfo model)
+        public ActionResult SwitchLockoutUser(string email)
         {
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email))
+            {
+                _adminDataModel.SwitchLockoutUserByEmail(UserManager, email);
+            }
+            else
+            {
+                return RedirectToAction("AdminUsersPanel");
+            }
+            return RedirectToAction("AdminUsersPanel");
+        }
+
+
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult EditUser(string email)
+        {
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email))
+            {
+                return View(_adminDataModel.GetUserForEditByEmail(UserManager, email));
+            }
+            return RedirectToAction("AdminUsersPanel");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult EditUser(EditUserViewModel model)
+        {
+            model.AvailableRoles = _adminDataModel.GetSelectListItemRoles(model.SelectedRoles);
+
             if (ModelState.IsValid)
             {
-                using (ApplicationDbContext context = new ApplicationDbContext())
+                if (model.NewEmploymentDate > DateTime.Now)
                 {
-                    EditUserModel modelToConfirmEdit = new EditUserModel();
-
-                    var userList = (from user in context.Users
-                                    where user.Id == model.Id
-                                    select new
-                                    {
-                                        FullName = user.FullName,
-                                        user.Email,
-                                        
-
-                                        RolesName = (from userRole in user.Roles 
-                                                     join role in context.Roles
-                                                     on userRole.RoleId
-                                                     equals role.Id
-                                                     select role.Name).ToList()
-                                    }
-                                    ).ToList();
-
-                    modelToConfirmEdit = userList.Select(p => new EditUserModel
-                    {
-                        OldFullName = p.FullName,
-                        OldEmail = p.Email,
-                        OldRoles = string.Join(", ", p.RolesName),                       
-                    }).First();
-
-                    modelToConfirmEdit.AvailableRoles = GetSelectListRoles();
-
-                    return View(modelToConfirmEdit);
+                    ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
+                    return View(model);
                 }
+                IdentityResult result = _adminDataModel.EditUser(UserManager, model);
 
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("AdminUsersPanel");
+                }
+                else
+                {
+                    AddErrorsFromResult(result);
+                }
             }
             return View(model);
         }
 
-        //[HttpPost]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<ActionResult> ConfirmEditUser(ShowUsersInfo model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        //if (model.Id == null)
-        //        //{
-        //        //    return RedirectToAction("AdminUsersPanel");
-        //        //}
-        //        //using (ApplicationDbContext context = new ApplicationDbContext())
-        //        //{
 
-        //        //}
-        //        //var user = await UserManager.FindByNameAsync(model.Email);
-        //        //if (!String.IsNullOrWhiteSpace(model.Email))
-        //        //{
-        //        //    return RedirectToAction("CreateUser");
-        //        //}
-        //        ApplicationUser user = await UserManager.FindByNameAsync(model.Email);
 
-        //        var rolesUser = await UserManager.GetRolesAsync(user.Id);
-        //        //var rolesUser = user.Roles;
-        //        if (rolesUser.Count() > 0)
-        //        {
-        //            foreach (var item in rolesUser.ToList())
-        //            {
+        [Authorize(Roles = "Admin")]
+        public ActionResult ChangeUserPassword(string email)
+        {
+            if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email))
+            {
+                return View(_adminDataModel.GetUserForChangePasswordByEmail(UserManager, email));
+            }
+            return RedirectToAction("AdminUsersPanel");
+        }
 
-        //                var result = await UserManager.RemoveFromRoleAsync(user.Id, item);
-        //            }
-        //        }
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult ChangeUserPassword(ChangeUserPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = _adminDataModel.ChangeUserPassword(UserManager, model);
 
-        //        await UserManager.DeleteAsync(user);
-        //    }
-        //    else
-        //    {
-        //        return View(model);
-        //    }
-        //    return RedirectToAction("AdminUsersPanel");
-        //}
+                if (result.Succeeded)
+                {
+
+                    return RedirectToAction("AdminUsersPanel");
+                }
+                else
+                {
+                    AddErrorsFromResult(result);
+                }
+            }
+            return View(model);
+        }
+
 
 
         [Authorize(Roles = "Admin")]
         private void AddErrorsFromResult(IdentityResult result)
         {
             foreach (string error in result.Errors)
-            {               
-                
+            {
                 ModelState.AddModelError("", error);
             }
         }
@@ -280,12 +185,5 @@ namespace TimeOffTracker.Controllers
             }
         }
 
-        //private ApplicationRoleManager RoleManager
-        //{
-        //    get
-        //    {
-        //        return HttpContext.GetOwinContext().GetUserManager<ApplicationRoleManager>();
-        //    }
-        //}
     }
 }

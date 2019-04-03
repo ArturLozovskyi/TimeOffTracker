@@ -1,14 +1,13 @@
-﻿@model TimeOffTracker.Models.CreateUserModel
+﻿@model TimeOffTracker.Models.CreateUserViewModel
 
 @{
-    ViewBag.Title = "CreateUser";
+    ViewBag.Title = "Создание нового пользователя";
 }
-@*"CreateUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" })*@
-@Html.ValidationSummary(false)
+
 @using (Html.BeginForm("CreateUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
-    <h4>Создайте новую учетную запись.</h4>
+    <h3>Создание новой учетной записи</h3>
     <hr />
     @Html.ValidationSummary("", new { @class = "text-danger" })
     <div class="form-group">
@@ -30,17 +29,23 @@
         </div>
     </div>
     <div class="form-group">
+        @Html.LabelFor(m => m.EmploymentDate, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.EditorFor(x => x.EmploymentDate, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
         @Html.LabelFor(m => m.AvailableRoles, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
             @foreach (var item in Model.AvailableRoles)
             {
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox"
-                           name="SelectedRoles"
-                           value="@item.Value" /> @item.Text
-                    </label>
-                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"
+                               name="SelectedRoles"
+                               value="@item.Value" checked="@item.Selected" /> @item.Text
+                        </label>
+                    </div>
             }
         </div>
     </div>
@@ -48,31 +53,3 @@
 
     @Html.ActionLink("Отмена", "AdminUsersPanel", null, new { @class = "btn btn-default" })
 }
-
-
-@*@model TimeOffTracker.Models.CreateUserModel
-
-@{
-    ViewBag.Title = "CreateUser";
-}
-@*"CreateUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" })*@
-@*@Html.ValidationSummary(false)
-@using (Html.BeginForm())
-{
-    <div class="form-group">
-        <label>Имя</label>
-        @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        <label>Email</label>
-        @Html.TextBoxFor(x => x.Email, new { @class = "form-control" })
-    </div>
-
-    <div class="form-group">
-        <label>Пароль</label>
-        @Html.TextBoxFor(x => x.Password, new { @class = "form-control" })
-    </div>
-    <button type="submit" class="btn btn-primary">Создать</button>
-
-    @Html.ActionLink("Отмена", "AdminUsersPanel", null, new { @class = "btn btn-default" })
-}*@

@@ -12,7 +12,7 @@
     <div class="form-group">
         @Html.LabelFor(m => m.OldFullName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.OldFullName, new {@readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.OldFullName, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
@@ -31,7 +31,7 @@
     <div class="form-group">
         @Html.LabelFor(m => m.NewEmail, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.NewEmail, new {@class = "form-control" })
+            @Html.TextBoxFor(x => x.NewEmail, new { @class = "form-control" })
         </div>
     </div>
 
@@ -45,14 +45,14 @@
     <div class="form-group">
         @Html.LabelFor(m => m.NewEmploymentDate, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.EditorFor(x => x.NewEmploymentDate, new {@class = "form-control" })
+            @Html.EditorFor(x => x.NewEmploymentDate, new { @class = "form-control" })
         </div>
     </div>
 
     <div class="form-group">
         @Html.LabelFor(m => m.OldRoles, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(x => x.OldRoles, new {@readonly = "readonly", @class = "form-control" })
+            @Html.TextBoxFor(x => x.OldRoles, new { @readonly = "readonly", @class = "form-control" })
         </div>
     </div>
 
@@ -71,8 +71,7 @@
             }
         </div>
     </div>
-
-    <input type="submit" class="btn btn-primary" value="Редактировать запись" />
+    <button type="submit" class="btn btn-primary">Редактировать запись</button>
 
     @Html.ActionLink("Отмена", "AdminUsersPanel", null, new { @class = "btn btn-default" })
 }

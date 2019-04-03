@@ -4,7 +4,7 @@
     ViewBag.Title = "Блокировка записи";
 }
 
-@using (Html.BeginForm("SwitchLockoutUser", "Admin", FormMethod.Post, new {@class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("SwitchLockoutUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
     if (Model.LockoutTime == null)
