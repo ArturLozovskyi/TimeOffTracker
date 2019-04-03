@@ -74,7 +74,7 @@ namespace TimeOffTracker.Controllers
                     return View(model);
                 }
 
-                ApplicationUser user = new ApplicationUser
+                ListRequestModel user = new ListRequestModel
                 {
                     UserName = model.Email,
                     Email = model.Email,
@@ -204,7 +204,7 @@ namespace TimeOffTracker.Controllers
                     ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
                     return View(model);
                 }
-                ApplicationUser user = await UserManager.FindByEmailAsync(model.OldEmail);
+                ListRequestModel user = await UserManager.FindByEmailAsync(model.OldEmail);
                 var rolesUser = await UserManager.GetRolesAsync(user.Id);
 
                 IdentityResult result;
@@ -279,7 +279,7 @@ namespace TimeOffTracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser user = await UserManager.FindByEmailAsync(model.Email);
+                ListRequestModel user = await UserManager.FindByEmailAsync(model.Email);
                 IdentityResult result;
                 result = await UserManager.PasswordValidator.ValidateAsync(model.NewPassword);
                 

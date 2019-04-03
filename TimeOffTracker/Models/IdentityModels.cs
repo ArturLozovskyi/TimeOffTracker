@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TimeOffTracker.Models
 {
     // Чтобы добавить данные профиля для пользователя, можно добавить дополнительные свойства в класс ApplicationUser. Дополнительные сведения см. по адресу: http://go.microsoft.com/fwlink/?LinkID=317594.
-    public class ApplicationUser : IdentityUser
+    public class ListRequestModel : IdentityUser
     {
         [Required]
         [DisplayName("ФИО")]
@@ -23,7 +23,7 @@ namespace TimeOffTracker.Models
         [Column(TypeName = "date")]
         public DateTime EmploymentDate { get; set; }
 
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ListRequestModel> manager)
         {
             // Обратите внимание, что authenticationType должен совпадать с типом, определенным в CookieAuthenticationOptions.AuthenticationType
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
@@ -50,7 +50,7 @@ namespace TimeOffTracker.Models
 
 
         [DisplayName("Заказывающий")]
-        virtual public ApplicationUser Employee { get; set; }
+        virtual public ListRequestModel Employee { get; set; }
 
         [Required]
         [DisplayName("Тип отпуска")]
@@ -84,7 +84,7 @@ namespace TimeOffTracker.Models
 
         [Required]
         [DisplayName("Сотрудник")]
-        virtual public ApplicationUser User { get; set; }
+        virtual public ListRequestModel User { get; set; }
 
         [Required]
         [DisplayName("Тип отпуска")]
@@ -123,7 +123,7 @@ namespace TimeOffTracker.Models
 
         [Required]
         [DisplayName("Проверяющий")]
-        virtual public ApplicationUser Approver { get; set; }
+        virtual public ListRequestModel Approver { get; set; }
 
         [Required]
         [DisplayName("Статус")]
@@ -137,7 +137,7 @@ namespace TimeOffTracker.Models
         public string Reason { get; set; }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ListRequestModel>
     {
         public ApplicationDbContext()
             : base("DefaultConnection3", throwIfV1Schema: false)
