@@ -33,18 +33,18 @@ namespace TimeOffTracker
     }
 
     // Настройка диспетчера пользователей приложения. UserManager определяется в ASP.NET Identity и используется приложением.
-    public class ApplicationUserManager : UserManager<ListRequestModel>
+    public class ApplicationUserManager : UserManager<ApplicationUser>
     {
-        public ApplicationUserManager(IUserStore<ListRequestModel> store)
+        public ApplicationUserManager(IUserStore<ApplicationUser> store)
             : base(store)
         {
         }
 
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context) 
         {
-            var manager = new ApplicationUserManager(new UserStore<ListRequestModel>(context.Get<ApplicationDbContext>()));
+            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
             // Настройка логики проверки имен пользователей
-            manager.UserValidator = new UserValidator<ListRequestModel>(manager)
+            manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
@@ -67,11 +67,11 @@ namespace TimeOffTracker
 
             // Регистрация поставщиков двухфакторной проверки подлинности. Для получения кода проверки пользователя в данном приложении используется телефон и сообщения электронной почты
             // Здесь можно указать собственный поставщик и подключить его.
-            manager.RegisterTwoFactorProvider("Код, полученный по телефону", new PhoneNumberTokenProvider<ListRequestModel>
+            manager.RegisterTwoFactorProvider("Код, полученный по телефону", new PhoneNumberTokenProvider<ApplicationUser>
             {
                 MessageFormat = "Ваш код безопасности: {0}"
             });
-            manager.RegisterTwoFactorProvider("Код из сообщения", new EmailTokenProvider<ListRequestModel>
+            manager.RegisterTwoFactorProvider("Код из сообщения", new EmailTokenProvider<ApplicationUser>
             {
                 Subject = "Код безопасности",
                 BodyFormat = "Ваш код безопасности: {0}"
@@ -82,21 +82,21 @@ namespace TimeOffTracker
             if (dataProtectionProvider != null)
             {
                 manager.UserTokenProvider = 
-                    new DataProtectorTokenProvider<ListRequestModel>(dataProtectionProvider.Create("ASP.NET Identity"));
+                    new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
             return manager;
         }
     }
 
     // Настройка диспетчера входа для приложения.
-    public class ApplicationSignInManager : SignInManager<ListRequestModel, string>
+    public class ApplicationSignInManager : SignInManager<ApplicationUser, string>
     {
         public ApplicationSignInManager(ApplicationUserManager userManager, IAuthenticationManager authenticationManager)
             : base(userManager, authenticationManager)
         {
         }
 
-        public override Task<ClaimsIdentity> CreateUserIdentityAsync(ListRequestModel user)
+        public override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
         {
             return user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
         }
