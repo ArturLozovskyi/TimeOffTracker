@@ -17,33 +17,33 @@ namespace TimeOffTracker.Business
 
         public ListShowUserViewModel GetAllUsersForShow()
         {
-              using (ApplicationDbContext context = new ApplicationDbContext())
+            using (ApplicationDbContext context = new ApplicationDbContext())
             {
                 ListShowUserViewModel allUsers = new ListShowUserViewModel();
-                
+
                 var userList = (from user in context.Users
-                                     orderby user.LockoutEndDateUtc
-                                     select new
-                                     {
-                                         FullName = user.FullName
-                                         , user.Email
-                                         , user.EmploymentDate
-                                         , user.LockoutEndDateUtc
-                                         , RoleNames = (from userRole in user.Roles 
-                                                      join role in context.Roles 
-                                                      on userRole.RoleId
-                                                      equals role.Id
-                                                      select role.Name).ToList()
-                                       
-                                     }).ToList();
+                                orderby user.LockoutEndDateUtc
+                                select new
+                                {
+                                    user.FullName,
+                                    user.Email,
+                                    user.EmploymentDate,
+                                    user.LockoutEndDateUtc,
+                                    RoleNames = (from userRole in user.Roles
+                                                 join role in context.Roles
+                                                 on userRole.RoleId
+                                                 equals role.Id
+                                                 select role.Name).ToList()
+
+                                }).ToList();
 
                 allUsers.MenuItems = userList.Select(p => new ShowUserViewModel
                 {
-                    FullName = p.FullName
-                    , Email = p.Email
-                    , LockoutTime = p.LockoutEndDateUtc
-                    , AllRoles = string.Join(", ", p.RoleNames)
-                    , EmploymentDate = p.EmploymentDate.ToShortDateString()
+                    FullName = p.FullName,
+                    Email = p.Email,
+                    LockoutTime = p.LockoutEndDateUtc,
+                    AllRoles = string.Join(", ", p.RoleNames),
+                    EmploymentDate = p.EmploymentDate.ToShortDateString()
                 }).ToList();
 
                 return allUsers;

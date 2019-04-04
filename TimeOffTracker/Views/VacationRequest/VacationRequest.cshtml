@@ -12,39 +12,40 @@
     <div>
         <div class="form-group">
             <label asp-for="VacationRequest.DateStart"></label><br />
-            <input class="form-control" type="date" asp-for="VacationRequest.DateStart" required/>
+            <input class="form-control" type="date" asp-for="VacationRequest.DateStart" required />
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.DateStart"></span>
         </div>
         <div class="form-group">
-            <label asp-for="VacationRequest.DateEnd"></label><br/>
-            <input class="form-control" type="date" asp-for="VacationRequest.DateEnd" required/>
+            <label asp-for="VacationRequest.DateEnd"></label><br />
+            <input class="form-control" type="date" asp-for="VacationRequest.DateEnd" required />
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.DateEnd"></span>
         </div>
         <div class="form-group">
-            <label asp-for="VacationRequest.Description"></label><br/>
+            <label asp-for="VacationRequest.Description"></label><br />
             <textarea class="form-control" type="text" asp-for="VacationRequest.Description" required></textarea>
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.Description"></span>
         </div>
         <div class="form-group">
-            <label asp-for="VacationRequest.VacationTypes"></label><br/>
+            <label asp-for="VacationRequest.VacationTypes"></label><br />
             <select class="form-control" asp-for="VacationRequest.VacationTypes" required>
                 @foreach (var type in Model.VacationTypes)
                 {
-                     <option value="@JsonConvert.SerializeObject(type)">@type.Name</option>
+                    //<option value="@type.Name">@type.Name</option>
+                    <option value="@JsonConvert.SerializeObject(type)">@type.Name</option>
                 }
             </select>
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.VacationTypes"></span>
         </div>
-         <div class="form-group approvers">
-             <label asp-for="Approvers"></label><br/>
-             <select class="form-control form-control-approvers" name="Approvers" required>
-                 @foreach (var approver in Model.Approvers)
-                 {
-                     <option value="@JsonConvert.SerializeObject(approver)">@approver.FullName</option>
-                 }
-             </select>
-             <span class="text-danger field-validation-error" asp-validation-for="Approvers"></span>
-         </div>
+        <!--   <div class="form-group approvers">
+        <label asp-for="Approvers"></label><br/>
+        <select class="form-control form-control-approvers" name="Approvers" required>
+            @//foreach (var approver in Model.Approvers)
+            {
+                <option value="@//JsonConvert.SerializeObject(approver)">@//approver.FullName</option>
+            }
+        </select>
+        <span class="text-danger field-validation-error" asp-validation-for="Approvers"></span>
+    </div>-->
         <div class="form-group">
             <button type="button" id="addApproverBtn" class="btn btn-primary">Add approver</button>
         </div>

@@ -9,6 +9,7 @@ namespace TimeOffTracker.Business
 {
     public interface IListActiveRequests
     {
+        // Добавить подробности о заявки
         ListRequestsModel GetListRequestsModel(string id);
         void Confirm(int? id);
         void Reject(int? id, string reason);

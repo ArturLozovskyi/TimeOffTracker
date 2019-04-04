@@ -56,36 +56,78 @@ namespace TimeOffTracker.Controllers
             }
         }
 
-        public async Task<ActionResult> VacationRequest()
+        public ActionResult VacationRequest()
         {
-            var currentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
             if (currentUser == null)
             {
                 return View("Error");
-
             }
-            var approvers = await (
-                from user in db.Users
-                join userRole in db.UserRoles on user.Id equals userRole.UserId
-                join roles in db.Roles on userRole.RoleId equals roles.Id
-                where roles.Name.Contains("Admin") || roles.Name.Contains("Approver")
-                select new ApplicationUser()
+
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                ListShowUserViewModel allUsers = new ListShowUserViewModel();
+
+                var userList = (from user in context.Users
+                                orderby user.LockoutEndDateUtc
+                                select new
+                                {
+                                    user.FullName,
+                                    user.Email,
+                                    user.EmploymentDate,
+                                    user.LockoutEndDateUtc,
+                                    RoleNames = (from userRole in user.Roles
+                                                 join role in context.Roles
+                                                 on userRole.RoleId
+                                                 equals role.Id
+                                                 select role.Name).ToList()
+
+                                }).ToList();
+
+
+                var approvers = userList.Where(w => w.RoleNames.Contains("Manager"));
+
+                VacationRequestViewModel vacationRequestViewModel = new VacationRequestViewModel();
+                List<VacationTypes> vacationTypes = context.VacationTypes.ToList();
+                vacationRequestViewModel.User = currentUser;
+                vacationRequestViewModel.VacationTypes = vacationTypes;
+                vacationRequestViewModel.Approvers = approvers as List<ApplicationUser>;
+
+                //return Json(approvers);
+                return View(vacationRequestViewModel);
+
+                /*
+                using (var context = new ApplicationDbContext())
                 {
-                    Id = currentUser.Id,
-                    UserName = currentUser.UserName
+                    var approvers = (
+                    from user in context.Users
+                    select new ApplicationUser()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName
+                    }
+                    ).ToList();
+
+                    VacationRequestViewModel vacationRequestViewModel = new VacationRequestViewModel();
+                    List<VacationTypes> vacationTypes = db.VacationTypes.ToList();
+                    vacationRequestViewModel.User = currentUser;
+                    vacationRequestViewModel.VacationTypes = vacationTypes;
+                    vacationRequestViewModel.Approvers = approvers;
+                    return View(vacationRequestViewModel);
                 }
-            ).ToListAsync();
-            
-            VacationRequestViewModel vacationRequestViewModel = new VacationRequestViewModel();
-            List<VacationTypes> vacationTypes = await db.VacationTypes.ToListAsync();
-            vacationRequestViewModel.User = currentUser;
-            vacationRequestViewModel.VacationTypes = vacationTypes;
-            vacationRequestViewModel.Approvers = approvers;
-            return View(vacationRequestViewModel);
+                */
+
+                /*
+
+                    join userRole in db.Roles on user.Id equals userRole.Id
+                    join roles in db.Roles on userRole.Id equals roles.Id
+                    where roles.Name.Contains("Manager")
+                 */
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateVacationRequest([FromBody]CreateVacationRequestViewModel createRequestViewModel)
+        public async Task<ActionResult> CreateVacationRequest(CreateVacationRequestViewModel createRequestViewModel)
         {
             var currentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
             if (currentUser == null)

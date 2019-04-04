@@ -7,10 +7,14 @@
 
     <ul class="nav navbar-nav navbar-right">
         
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="VacationRequest" asp-action="VacationRequest">Request</a>
-        </li>
         
+        @if (User.IsInRole("Employee"))
+        {
+            <li>
+                @Html.ActionLink("Create request", "VacationRequest", "VacationRequest")
+            </li>
+        }
+
         @if (User.IsInRole("Admin"))
          {
             <li>
