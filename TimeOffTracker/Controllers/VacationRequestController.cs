@@ -5,18 +5,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
+using TimeOffTracker.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using TimeOffTracker.Models;
 
 namespace TimeOffTracker.Controllers
 {
     [Authorize]
     public class VacationRequestController : Controller
     {
-        private ApplicationDbContext db;
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
@@ -25,11 +25,10 @@ namespace TimeOffTracker.Controllers
             
         }
 
-        public VacationRequestController(ApplicationDbContext context, ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        public VacationRequestController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
-            db = context;
         }
 
         public ApplicationSignInManager SignInManager
@@ -56,38 +55,38 @@ namespace TimeOffTracker.Controllers
             }
         }
 
-        public async Task<ActionResult> VacationRequest()
+        public ActionResult VacationRequest()
         {
-            var currentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-            if (currentUser == null)
+            using(var db = new ApplicationDbContext())
             {
-                return View("Error");
-
-            }
-            var approvers = await (
-                from user in db.Users
-                join userRole in db.UserRoles on user.Id equals userRole.UserId
-                join roles in db.Roles on userRole.RoleId equals roles.Id
-                where roles.Name.Contains("Admin") || roles.Name.Contains("Approver")
-                select new ApplicationUser()
+                var currentUser = UserManager.FindById(User.Identity.GetUserId());
+                if (currentUser == null)
                 {
-                    Id = currentUser.Id,
-                    UserName = currentUser.UserName
+                    return View("Error");
+
                 }
-            ).ToListAsync();
-            
-            VacationRequestViewModel vacationRequestViewModel = new VacationRequestViewModel();
-            List<VacationTypes> vacationTypes = await db.VacationTypes.ToListAsync();
-            vacationRequestViewModel.User = currentUser;
-            vacationRequestViewModel.VacationTypes = vacationTypes;
-            vacationRequestViewModel.Approvers = approvers;
-            return View(vacationRequestViewModel);
+
+                var approvers = db.Roles.Where(r => r.Name == "Manager").First().Users.Join(db.Users, role => role.UserId, u => u.Id, (role, u) => new ApplicationUser()
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    Email = u.Email
+                }).ToList();
+
+
+                VacationRequestViewModel vacationRequestViewModel = new VacationRequestViewModel();
+                List<VacationTypes> vacationTypes = db.VacationTypes.ToList();
+                vacationRequestViewModel.User = currentUser;
+                vacationRequestViewModel.VacationTypes = vacationTypes;
+                vacationRequestViewModel.Approvers = approvers;
+                return View(vacationRequestViewModel);
+            }      
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateVacationRequest([FromBody]CreateVacationRequestViewModel createRequestViewModel)
+        public ActionResult CreateVacationRequest(CreateVacationRequestViewModel createRequestViewModel)
         {
-            var currentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            var currentUser = UserManager.FindById(User.Identity.GetUserId());
             if (currentUser == null)
             {
                 return View("Error");
@@ -96,31 +95,30 @@ namespace TimeOffTracker.Controllers
             {
                 return View("Error");
             }
-            Requests vacationRequest = new Requests()
+
+            createRequestViewModel.VacationRequest.Employee = currentUser;
+
+            using (var db = new ApplicationDbContext())
             {
-                DateStart = createRequestViewModel.VacationRequest.DateStart,
-                DateEnd = createRequestViewModel.VacationRequest.DateEnd,
-                Description = createRequestViewModel.VacationRequest.Description,
-                VacationTypes = createRequestViewModel.VacationRequest.VacationTypes,
-                Employee = currentUser
-            };
-            db.Requests.Add(vacationRequest);
-            await db.SaveChangesAsync();
-            
-            
-            var approvers = createRequestViewModel.Approvers;
-            foreach (var approver in approvers)
-            {
-                
-                RequestChecks vacationRequestCheck = new RequestChecks()
-                {
-                    Request = vacationRequest,
-                    Approver = approver
-                };
-                db.RequestChecks.Add(vacationRequestCheck);
-                await db.SaveChangesAsync();
+                db.Requests.Add(createRequestViewModel.VacationRequest);
+                db.SaveChanges();
             }
-            return Json(createRequestViewModel);
+
+            return Json(createRequestViewModel.VacationRequest, JsonRequestBehavior.AllowGet);
+
+            //var approvers = createRequestViewModel.Approvers;
+            //foreach (var approver in approvers)
+            //{
+
+            //    RequestChecks vacationRequestCheck = new RequestChecks()
+            //    {
+            //        Request = vacationRequest,
+            //        Approver = approver
+            //    };
+            //    db.RequestChecks.Add(vacationRequestCheck);
+            //    await db.SaveChangesAsync();
+            //}
+            return Json(createRequestViewModel, JsonRequestBehavior.AllowGet);
         }
     }
 }

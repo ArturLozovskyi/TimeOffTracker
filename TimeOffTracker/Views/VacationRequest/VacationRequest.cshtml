@@ -12,22 +12,22 @@
     <div>
         <div class="form-group">
             <label asp-for="VacationRequest.DateStart"></label><br />
-            <input class="form-control" type="date" asp-for="VacationRequest.DateStart" required/>
+            <input class="form-control" type="date" id="VacationRequest_DateStart" name="VacationRequest.DateStart" required/>
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.DateStart"></span>
         </div>
         <div class="form-group">
             <label asp-for="VacationRequest.DateEnd"></label><br/>
-            <input class="form-control" type="date" asp-for="VacationRequest.DateEnd" required/>
+            <input class="form-control" type="date" id="VacationRequest_DateEnd" name="VacationRequest.DateEnd" required/>
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.DateEnd"></span>
         </div>
         <div class="form-group">
             <label asp-for="VacationRequest.Description"></label><br/>
-            <textarea class="form-control" type="text" asp-for="VacationRequest.Description" required></textarea>
+            <textarea class="form-control" type="text" name="VacationRequest.Description" required></textarea>
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.Description"></span>
         </div>
         <div class="form-group">
             <label asp-for="VacationRequest.VacationTypes"></label><br/>
-            <select class="form-control" asp-for="VacationRequest.VacationTypes" required>
+            <select class="form-control" name="VacationRequest.VacationTypes" required>
                 @foreach (var type in Model.VacationTypes)
                 {
                      <option value="@JsonConvert.SerializeObject(type)">@type.Name</option>

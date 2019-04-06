@@ -31,6 +31,7 @@ function createRequestData(id) {
     id = '#' + id;
     return $(id).serializeArray().reduce(function(obj, item) {
         var part = obj;
+        console.log('name: ', item.name, 'value: ', item.value);
         var parts = item.name.split('.');
         if (item.name === 'Approvers') {
             if(!obj[item.name]) {
@@ -41,6 +42,10 @@ function createRequestData(id) {
         }
         if (item.name === 'VacationRequest.VacationTypes') {
             item.value = JSON.parse(item.value);;
+        }
+
+        if (item.name.indexOf('VacationRequest.Date') !== -1) {
+            item.value = new Date(item.value);
         }
         
         for (let i = 0; i < parts.length - 1; i++) {

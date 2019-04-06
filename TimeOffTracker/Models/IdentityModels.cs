@@ -40,12 +40,12 @@ namespace TimeOffTracker.Models
 
         [Required]
         [DisplayName("Дата начала")]
-        [DataType(DataType.Date)]
+        //[DataType(DataType.Date)]
         public DateTime DateStart { get; set; }
 
         [Required]
         [DisplayName("Дата конца")]
-        [DataType(DataType.Date)]
+        //[DataType(DataType.Date)]
         public DateTime DateEnd { get; set; }
 
 
