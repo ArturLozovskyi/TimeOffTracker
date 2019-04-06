@@ -7,20 +7,20 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Учетные записи
+        Accounts
     </div>
     <table class="table table-striped">
         <tr>
-            <th>Имя</th>
+            <th>Full name</th>
             <th>Email</th>
-            <th>Дата приема на работу</th>
-            <th>Роли</th>
-            <th>@Html.ActionLink("Создать", "CreateUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
+            <th>Employment date</th>
+            <th>Roles</th>
+            <th>@Html.ActionLink("Create", "CreateUser", "Admin", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
         </tr>
         @if (Model.MenuItems.Count == 0)
         {
             <tr>
-                <td colspan="3" class="text-center">Нет ни одной учетной записи</td>
+                <td colspan="3" class="text-center">No account... Stop! Who are you?</td>
             </tr>
         }
         else
@@ -38,17 +38,22 @@
                             @using (Html.BeginForm("ConfirmSwitchLockoutUser", "Admin", FormMethod.Get))
                             {
                                 <input type="hidden" value="@user.Email" name="email" />
-                                <button class="btn btn-danger btn-xs" type="submit">Заблокировать</button>
+                                <button class="btn btn-danger btn-xs" type="submit">Lock account</button>
                             }
                             @using (Html.BeginForm("EditUser", "Admin", FormMethod.Get))
                             {
                                 <input type="hidden" value="@user.Email" name="email" />
-                                <button class="btn btn-default btn-xs" type="submit">Редактировать</button>
+                                <button class="btn btn-default btn-xs" type="submit">Edit account</button>
                             }
-                            @using (Html.BeginForm("ChangeUserPassword", "Admin", FormMethod.Get))
+                            @*@using (Html.BeginForm("ChangeUserPassword", "Admin", FormMethod.Get))
                             {
                                 <input type="hidden" value="@user.Email" name="email" />
                                 <button class="btn btn-warning btn-xs" type="submit">Сбросить пароль</button>
+                            }*@
+                            @using (Html.BeginForm("EditUserVacationDays", "Admin", FormMethod.Get))
+                            {
+                                <input type="hidden" value="@user.Email" name="email" />
+                                <button class="btn btn-warning btn-xs" type="submit">Vacation control</button>
                             }
                         </td>
                     </tr>
@@ -64,7 +69,7 @@
                             @using (Html.BeginForm("ConfirmSwitchLockoutUser", "Admin", FormMethod.Get))
                             {
                                 <input type="hidden" value="@user.Email" name="email" />
-                                <button class="btn btn-success btn-xs" type="submit">Разблокировать</button>
+                                <button class="btn btn-success btn-xs" type="submit">Unlock account</button>
                             }
                         </td>
                     </tr>

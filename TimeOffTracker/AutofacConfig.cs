@@ -21,6 +21,7 @@ namespace TimeOffTracker
 
             // регистрируем споставление типов
             builder.RegisterType<AdminDataModel>().As<IAdminDataModel>();
+            builder.RegisterType<VacationControlDataModel>().As<IVacationControlDataModel>();
 
             // создаем новый контейнер с теми зависимостями, которые определены выше
             var container = builder.Build();

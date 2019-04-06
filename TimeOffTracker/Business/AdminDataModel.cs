@@ -14,7 +14,6 @@ namespace TimeOffTracker.Business
 {
     public class AdminDataModel : IAdminDataModel
     {
-
         public ListShowUserViewModel GetAllUsersForShow()
         {
               using (ApplicationDbContext context = new ApplicationDbContext())
@@ -166,34 +165,95 @@ namespace TimeOffTracker.Business
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(model.IsChangePassword))
+            {
+                //добавляю "" т.к. ValidateAsync не генерирует NullReferenceException при получении null
+                result = UserManager.PasswordValidator.ValidateAsync(model.NewPassword + "").Result;
+                if (result.Succeeded)
+                {
+                    string token = UserManager.GeneratePasswordResetToken(user.Id);
+                    UserManager.ResetPassword(user.Id, token, model.NewPassword);
+                }
+            }
+
             return result;
         }
 
 
 
-        public ChangeUserPasswordViewModel GetUserForChangePasswordByEmail(ApplicationUserManager UserManager, string email)
+        public EditUserVacationDaysViewModel GetUserForEditVacationDaysByEmail(ApplicationUserManager UserManager, string email)
+        {
+            ApplicationUser user = UserManager.FindByEmail(email);
+            var userRoles = UserManager.GetRoles(user.Id);
+            Dictionary<string, int> vacations = new Dictionary<string, int>();
+            vacations = GetVacationDictionaryByEmail(email);
+
+            return new EditUserVacationDaysViewModel()
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                EmploymentDate = user.EmploymentDate.ToShortDateString(),
+                AllRoles = string.Join(", ", userRoles),
+                Vacations = vacations
+            };
+        }
+
+        //Возвращает строку с пречнем ошибок
+        public string EditUserVacationDays(EditUserVacationDaysViewModel model)
+        {
+            string result = "";
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                var listUserVacation = context.UserVacationDays.Where(m => m.User.Email == model.Email).ToList();
+                if (!(model.VacationNames.Count == model.VacationDays.Count))
+                {
+                    result = "Something went wrong! Please refresh and try again.";
+                    return result;
+                }
+                Dictionary<string, int> tempDic = new Dictionary<string, int>();
+                for (int i = 0; i < model.VacationNames.Count; i++)
+                {
+                    tempDic.Add(model.VacationNames[i], model.VacationDays[i]);
+                }
+                foreach (var temp in tempDic)
+                {
+                    foreach (var item in listUserVacation)
+                    {
+                        if (item.VacationType.Name == temp.Key)
+                        {
+                            if (temp.Value < 0)
+                            {
+                                result += temp.Key + " can't be less than zero" + "\n";
+                            }
+                            else
+                            {
+                                item.VacationDays = temp.Value;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    return result;
+                }
+                context.SaveChanges();
+            }
+            return result;
+        }
+
+        public Dictionary<string, int> GetVacationDictionaryByEmail(string email)
         {
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
-                var user = UserManager.FindByEmail(email);
-                var userRoles = UserManager.GetRoles(user.Id);
-
-                return new ChangeUserPasswordViewModel
+                Dictionary<string, int> result = new Dictionary<string, int>();
+                var listUserVacation = context.UserVacationDays.Where(m => m.User.Email == email).ToList();
+                foreach (var item in listUserVacation)
                 {
-                    FullName = user.FullName
-                    , Email = user.Email
-                    , EmploymentDate = user.EmploymentDate.ToShortDateString()
-                    , AllRoles = string.Join(", ", userRoles)
-                };
-            }
-        }
-
-        public IdentityResult ChangeUserPassword(ApplicationUserManager UserManager, ChangeUserPasswordViewModel model)
-        {
-            ApplicationUser user =  UserManager.FindByEmail(model.Email);
-
-            string token = UserManager.GeneratePasswordResetToken(user.Id);
-            return UserManager.ResetPassword(user.Id, token, model.NewPassword);
+                    result.Add(item.VacationType.Name, item.VacationDays);
+                }
+                return result;
+            }           
         }
 
         public IList<SelectListItem> GetSelectListItemRoles()
@@ -210,7 +270,7 @@ namespace TimeOffTracker.Business
         }
 
         public IList<SelectListItem> GetSelectListItemRoles(IList<string> roles)
-        {
+        {          
             IList<SelectListItem> result = GetSelectListItemRoles();
             if (roles != null)
             {

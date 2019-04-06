@@ -15,10 +15,12 @@ namespace TimeOffTracker.Controllers
     public class AdminController : Controller
     {
         IAdminDataModel _adminDataModel;
+        IVacationControlDataModel _vacationControlDataModel;
 
-        public AdminController(IAdminDataModel adminDataModel)
+        public AdminController(IAdminDataModel adminDataModel, IVacationControlDataModel vacationControlDataModel)
         {
             _adminDataModel = adminDataModel;
+            _vacationControlDataModel = vacationControlDataModel;
         }
 
         [Authorize(Roles = "Admin")]
@@ -49,7 +51,7 @@ namespace TimeOffTracker.Controllers
             {
                 if (model.EmploymentDate > DateTime.Now)
                 {
-                    ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
+                    ModelState.AddModelError("", "Employment date can't be longer than the current date");
                     return View(model);
                 }
 
@@ -57,6 +59,9 @@ namespace TimeOffTracker.Controllers
 
                 if (result.Succeeded)
                 {
+                    _vacationControlDataModel.BindingMissingVacationByEmail(model.Email);
+                    _vacationControlDataModel.UpdateUserVacationDaysByEmail(model.Email);
+
                     return RedirectToAction("AdminUsersPanel");
                 }
                 else
@@ -116,7 +121,7 @@ namespace TimeOffTracker.Controllers
             {
                 if (model.NewEmploymentDate > DateTime.Now)
                 {
-                    ModelState.AddModelError("", "Дата приема на работу не может быть больше текущей даты");
+                    ModelState.AddModelError("", "Employment date can't be longer than the current date");
                     return View(model);
                 }
                 IdentityResult result = _adminDataModel.EditUser(UserManager, model);
@@ -136,33 +141,35 @@ namespace TimeOffTracker.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        public ActionResult ChangeUserPassword(string email)
+        public ActionResult EditUserVacationDays(string email)
         {
             if (ModelState.IsValid && !string.IsNullOrWhiteSpace(email))
             {
-                return View(_adminDataModel.GetUserForChangePasswordByEmail(UserManager, email));
+                _vacationControlDataModel.BindingMissingVacationByEmail(email);
+                _vacationControlDataModel.UpdateUserVacationDaysByEmail(email);
+
+                return View(_adminDataModel.GetUserForEditVacationDaysByEmail(UserManager, email));
             }
+
             return RedirectToAction("AdminUsersPanel");
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public ActionResult ChangeUserPassword(ChangeUserPasswordViewModel model)
+        public ActionResult EditUserVacationDays(EditUserVacationDaysViewModel model)
         {
+            model.Vacations = _adminDataModel.GetVacationDictionaryByEmail(model.Email);
             if (ModelState.IsValid)
             {
-                var result = _adminDataModel.ChangeUserPassword(UserManager, model);
-
-                if (result.Succeeded)
+                string result = _adminDataModel.EditUserVacationDays(model);
+                if (!string.IsNullOrWhiteSpace(result))
                 {
-
-                    return RedirectToAction("AdminUsersPanel");
+                    ModelState.AddModelError("", result);
+                    return View(model);
                 }
-                else
-                {
-                    AddErrorsFromResult(result);
-                }
+                return RedirectToAction("AdminUsersPanel");
             }
+
             return View(model);
         }
 
