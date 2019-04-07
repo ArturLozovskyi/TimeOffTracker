@@ -8,6 +8,6 @@ namespace TimeOffTracker.Models
         [Required]
         public Requests VacationRequest { get; set; }
         [Required]
-        public List<ApplicationUser> Approvers { get; set; }
+        public List<string> ApproversId { get; set; }
     }
 }

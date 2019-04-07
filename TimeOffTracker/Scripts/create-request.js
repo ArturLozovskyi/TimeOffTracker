@@ -33,17 +33,14 @@ function createRequestData(id) {
         var part = obj;
         console.log('name: ', item.name, 'value: ', item.value);
         var parts = item.name.split('.');
-        if (item.name === 'Approvers') {
+        if (item.name === 'ApproversId') {
             if(!obj[item.name]) {
                 obj[item.name] = [];
             }
-            obj[item.name].push(JSON.parse(item.value));
+            obj[item.name].push(item.value);
             return obj;
         }
-        if (item.name === 'VacationRequest.VacationTypes') {
-            item.value = JSON.parse(item.value);;
-        }
-
+       
         if (item.name.indexOf('VacationRequest.Date') !== -1) {
             item.value = new Date(item.value);
         }

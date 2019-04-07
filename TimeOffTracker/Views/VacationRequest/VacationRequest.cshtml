@@ -26,21 +26,21 @@
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.Description"></span>
         </div>
         <div class="form-group">
-            <label asp-for="VacationRequest.VacationTypes"></label><br/>
-            <select class="form-control" name="VacationRequest.VacationTypes" required>
+            <label asp-for="VacationRequest.VacationTypesId"></label><br/>
+            <select class="form-control" name="VacationRequest.VacationTypesId" required>
                 @foreach (var type in Model.VacationTypes)
                 {
-                     <option value="@JsonConvert.SerializeObject(type)">@type.Name</option>
+                     <option value="@type.Id">@type.Name</option>
                 }
             </select>
             <span class="text-danger field-validation-error" asp-validation-for="VacationRequest.VacationTypes"></span>
         </div>
          <div class="form-group approvers">
              <label asp-for="Approvers"></label><br/>
-             <select class="form-control form-control-approvers" name="Approvers" required>
+             <select class="form-control form-control-approvers" name="ApproversId" required>
                  @foreach (var approver in Model.Approvers)
                  {
-                     <option value="@JsonConvert.SerializeObject(approver)">@approver.FullName</option>
+                     <option value="@approver.Id">@approver.Email</option>
                  }
              </select>
              <span class="text-danger field-validation-error" asp-validation-for="Approvers"></span>

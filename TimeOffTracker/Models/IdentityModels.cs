@@ -48,13 +48,17 @@ namespace TimeOffTracker.Models
         //[DataType(DataType.Date)]
         public DateTime DateEnd { get; set; }
 
-
         [DisplayName("Заказывающий")]
         virtual public ApplicationUser Employee { get; set; }
 
-        [Required]
+        [ForeignKey("Employee")]
+        public string EmployeeId { get; set; }
+
         [DisplayName("Тип отпуска")]
         virtual public VacationTypes VacationTypes { get; set; }
+
+        [ForeignKey("VacationTypes")]
+        public int VacationTypesId { get; set; }
 
         [Required]
         [DisplayName("Описание")]
@@ -117,17 +121,23 @@ namespace TimeOffTracker.Models
         [DisplayName("Индекс")]
         public int Id { get; set; }
 
-        [Required]
         [DisplayName("Запрос")]
         virtual public Requests Request { get; set; }
 
-        [Required]
+        [ForeignKey("Request")]
+        public int RequestId { get; set; }
+
         [DisplayName("Проверяющий")]
         virtual public ApplicationUser Approver { get; set; }
 
-        [Required]
+        [ForeignKey("Approver")]
+        public string ApproverId { get; set; }
+
         [DisplayName("Статус")]
         virtual public RequestStatuses Status { get; set; }
+
+        [ForeignKey("Status")]
+        public int StatusId { get; set; }
 
         [Required]
         [DisplayName("Приоритет проверяющего")]

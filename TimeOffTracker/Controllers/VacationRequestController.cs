@@ -96,28 +96,30 @@ namespace TimeOffTracker.Controllers
                 return View("Error");
             }
 
-            createRequestViewModel.VacationRequest.Employee = currentUser;
+            createRequestViewModel.VacationRequest.EmployeeId = currentUser.Id;
 
             using (var db = new ApplicationDbContext())
             {
                 db.Requests.Add(createRequestViewModel.VacationRequest);
                 db.SaveChanges();
+
+                var status = db.RequestStatuses.Where(s => s.Name == "Ожидание").Single();
+                int priority = 1;
+                var approvers = createRequestViewModel.ApproversId;
+                foreach (var approver in approvers)
+                {
+                    RequestChecks vacationRequestCheck = new RequestChecks()
+                    {
+                        RequestId = createRequestViewModel.VacationRequest.Id,
+                        ApproverId = approver,
+                        Priority = priority,
+                        StatusId = status.Id
+                    };
+                    db.RequestChecks.Add(vacationRequestCheck);
+                    db.SaveChanges();
+                    priority++;
+                }
             }
-
-            return Json(createRequestViewModel.VacationRequest, JsonRequestBehavior.AllowGet);
-
-            //var approvers = createRequestViewModel.Approvers;
-            //foreach (var approver in approvers)
-            //{
-
-            //    RequestChecks vacationRequestCheck = new RequestChecks()
-            //    {
-            //        Request = vacationRequest,
-            //        Approver = approver
-            //    };
-            //    db.RequestChecks.Add(vacationRequestCheck);
-            //    await db.SaveChangesAsync();
-            //}
             return Json(createRequestViewModel, JsonRequestBehavior.AllowGet);
         }
     }

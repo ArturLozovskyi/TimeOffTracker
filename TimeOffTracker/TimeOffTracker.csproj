@@ -207,6 +207,10 @@
     <Compile Include="Migrations\201903231816064_ExtendedDb.Designer.cs">
       <DependentUpon>201903231816064_ExtendedDb.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904071423181_UpdateSchema.cs" />
+    <Compile Include="Migrations\201904071423181_UpdateSchema.Designer.cs">
+      <DependentUpon>201904071423181_UpdateSchema.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
@@ -310,6 +314,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903231816064_ExtendedDb.resx">
       <DependentUpon>201903231816064_ExtendedDb.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904071423181_UpdateSchema.resx">
+      <DependentUpon>201904071423181_UpdateSchema.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
