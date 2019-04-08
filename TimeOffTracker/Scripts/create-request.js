@@ -20,7 +20,7 @@ submitBtn.addEventListener('click', () => {
         method: "POST",
         data: JSON.stringify(requestData),
         success: function (responce) {
-            console.log(responce);
+            $('#myModal').show();
         }
     });
 });
@@ -69,4 +69,7 @@ from.addEventListener('change', () => {
 to.addEventListener('change', () => {
    from.setAttribute('max', to.value); 
 });
-
+$("[data-dismiss=modal]").bind('click', () => {
+    $('#myModal').hide();
+    window.location.href = '/Home';
+})
