@@ -7,7 +7,7 @@ namespace TimeOffTracker.Models.ManagerModels
 {
     public class RequestsModel
     {
-        public int Id { get; set; } // id Appr
+        public int Id { get; set; } // id Request
         public string FullNameEmployee { get; set; }
         public string EmailEmployee { get; set; }
         public DateTime DateStart { get; set; }
@@ -15,5 +15,6 @@ namespace TimeOffTracker.Models.ManagerModels
         public string VacationType { get; set; }
         public string Description { get; set; }
         public string Reason { get; set; }
+        public List<RequestChecks> Approvers { get; set; }
     }
 }

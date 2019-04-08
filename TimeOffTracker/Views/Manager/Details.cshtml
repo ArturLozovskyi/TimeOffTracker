@@ -1,0 +1,25 @@
+﻿@model TimeOffTracker.Models.ManagerModels.RequestsModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+        <h4>Datails</h4>
+    </div>
+    <div class="modal-body">
+        <dl class="dl-horizontal">
+            <dt>Full name</dt>
+            <dd>@Model.FullNameEmployee</dd>
+            <dt>Email</dt>
+            <dd>@Model.EmailEmployee</dd>
+            <dt>Dates</dt>
+            <dd>@Model.DateStart</dd>
+            <dd>@Model.DateEnd</dd>
+            <dt>Approvers</dt>
+            @foreach (var a in Model.Approvers)
+            {
+                <dd>@a.Approver.Email @a.Approver.FullName @a.Priority @a.Status.Name</dd>
+            }
+
+        </dl>
+    </div>
+</div>

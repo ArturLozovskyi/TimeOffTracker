@@ -12,5 +12,6 @@ namespace TimeOffTracker.Business
         ListRequestsModel GetListRequestsModel(string id);
         void Confirm(int? id);
         void Reject(int? id, string reason);
+        RequestsModel GetRequestsModel(int? id);
     }
 }

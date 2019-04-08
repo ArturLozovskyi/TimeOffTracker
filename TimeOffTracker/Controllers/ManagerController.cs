@@ -13,6 +13,7 @@ namespace TimeOffTracker.Controllers.ManagerControllers
 {
     public class ManagerController : Controller
     {
+        // Rename this!
         IListActiveRequests listActiveRequests;
 
         public ManagerController(IListActiveRequests listActiveRequests)
@@ -20,7 +21,6 @@ namespace TimeOffTracker.Controllers.ManagerControllers
             this.listActiveRequests = listActiveRequests;
         }
 
-        // GET: Manager
         public ActionResult Index()
         {
             return View();
@@ -29,16 +29,8 @@ namespace TimeOffTracker.Controllers.ManagerControllers
         [Authorize(Roles = "Manager")]
         public ActionResult ManagerPanel()
         {
-            // Приоритет будет таков:
-            // Самый верхний аппр = 1 и дальше инкремент
-            // т.е. для проверки должно быть несколько условий
-
             string id = User.Identity.GetUserId();      //Узнать ID активного пользователя
-
             return View(listActiveRequests.GetListRequestsModel(id));
-
-            //var model = new ListActiveRequests(id);
-            //return View(model.GetListRequestsModel());
         }
 
         [HttpPost]
@@ -50,27 +42,6 @@ namespace TimeOffTracker.Controllers.ManagerControllers
 
             listActiveRequests.Confirm(id);
             return View("ManagerPanel", listActiveRequests.GetListRequestsModel(idUser));
-            
-            
-            /*
-            // Менять статус на подтверждено
-            using (var context = new ApplicationDbContext())
-            {
-                RequestChecks request = context.RequestChecks.Find(id);
-                if (request != null)
-                {
-                    context.Entry(request).State = EntityState.Modified;
-
-                    RequestStatuses status = context.RequestStatuses.Find(1);
-                    request.Status = status;
-                    context.SaveChanges();
-                }
-            }
-            */
-
-            //var model = new ListActiveRequests(idUser);
-            //var m = model.GetListRequestsModel();
-            //return View("ManagerPanel", m);
         }
 
         [HttpPost]
@@ -81,10 +52,21 @@ namespace TimeOffTracker.Controllers.ManagerControllers
             if (id == null) { return HttpNotFound(); }
             listActiveRequests.Reject(id, reason);
             return View("ManagerPanel", listActiveRequests.GetListRequestsModel(idUser));
+        }
 
-            // var model = new ListActiveRequests(idUser);
-            // var m = model.GetListRequestsModel();
-            // return View("ManagerPanel", m);
+        public ActionResult Details(int? id)
+        {
+            //id RequestCheck
+            if (id == null) { return HttpNotFound(); }
+
+            RequestsModel requestsModel = listActiveRequests.GetRequestsModel(id);
+
+            if (requestsModel != null){
+                return PartialView(requestsModel);
+            }
+            else{
+                return HttpNotFound();
+            }
         }
     }
 }
