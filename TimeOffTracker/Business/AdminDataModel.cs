@@ -14,41 +14,48 @@ namespace TimeOffTracker.Business
 {
     public class AdminDataModel : IAdminDataModel
     {
-
         public ListShowUserViewModel GetAllUsersForShow()
         {
-              using (ApplicationDbContext context = new ApplicationDbContext())
+            using (ApplicationDbContext context = new ApplicationDbContext())
             {
                 ListShowUserViewModel allUsers = new ListShowUserViewModel();
-                
+
                 var userList = (from user in context.Users
-                                     orderby user.LockoutEndDateUtc
-                                     select new
-                                     {
-                                         FullName = user.FullName
-                                         , user.Email
-                                         , user.EmploymentDate
-                                         , user.LockoutEndDateUtc
-                                         , RoleNames = (from userRole in user.Roles 
-                                                      join role in context.Roles 
-                                                      on userRole.RoleId
-                                                      equals role.Id
-                                                      select role.Name).ToList()
-                                       
-                                     }).ToList();
+                                orderby user.LockoutEndDateUtc
+                                select new
+                                {
+                                    FullName = user.FullName
+                                    ,
+                                    user.Email
+                                    ,
+                                    user.EmploymentDate
+                                    ,
+                                    user.LockoutEndDateUtc
+                                    ,
+                                    RoleNames = (from userRole in user.Roles
+                                                 join role in context.Roles
+                                                 on userRole.RoleId
+                                                 equals role.Id
+                                                 select role.Name).ToList()
+
+                                }).ToList();
 
                 allUsers.MenuItems = userList.Select(p => new ShowUserViewModel
                 {
                     FullName = p.FullName
-                    , Email = p.Email
-                    , LockoutTime = p.LockoutEndDateUtc
-                    , AllRoles = string.Join(", ", p.RoleNames)
-                    , EmploymentDate = p.EmploymentDate.ToShortDateString()
+                    ,
+                    Email = p.Email
+                    ,
+                    LockoutTime = p.LockoutEndDateUtc
+                    ,
+                    AllRoles = string.Join(", ", p.RoleNames)
+                    ,
+                    EmploymentDate = p.EmploymentDate.ToShortDateString()
                 }).ToList();
 
                 return allUsers;
             }
-        }       
+        }
 
         public ShowUserViewModel GetUserForShowByEmail(ApplicationUserManager UserManager, string email)
         {
@@ -58,14 +65,18 @@ namespace TimeOffTracker.Business
                 var userRoles = UserManager.GetRoles(user.Id);
 
                 return new ShowUserViewModel
-                    {
-                        FullName = user.FullName
-                        , Email = user.Email
-                        , LockoutTime = user.LockoutEndDateUtc
-                        , AllRoles = string.Join(", ", userRoles)
-                        , EmploymentDate = user.EmploymentDate.ToShortDateString()
-                    };
-             }
+                {
+                    FullName = user.FullName
+                        ,
+                    Email = user.Email
+                        ,
+                    LockoutTime = user.LockoutEndDateUtc
+                        ,
+                    AllRoles = string.Join(", ", userRoles)
+                        ,
+                    EmploymentDate = user.EmploymentDate.ToShortDateString()
+                };
+            }
         }
 
 
@@ -75,13 +86,16 @@ namespace TimeOffTracker.Business
             ApplicationUser user = new ApplicationUser
             {
                 UserName = model.Email
-                , Email = model.Email
-                , FullName = model.FullName
-                , EmploymentDate = model.EmploymentDate
+                ,
+                Email = model.Email
+                ,
+                FullName = model.FullName
+                ,
+                EmploymentDate = model.EmploymentDate
             };
 
             IdentityResult result = UserManager.Create(user, model.Password);
-            
+
             if (result.Succeeded)
             {
                 if (model.SelectedRoles != null)
@@ -122,13 +136,20 @@ namespace TimeOffTracker.Business
                 return new EditUserViewModel
                 {
                     OldFullName = user.FullName
-                    , NewFullName = user.FullName
-                    , OldEmail = user.Email
-                    , NewEmail = user.Email
-                    , OldEmploymentDate = user.EmploymentDate.ToShortDateString()
-                    , NewEmploymentDate = user.EmploymentDate
-                    , OldRoles = string.Join(", ", userRoles)
-                    , AvailableRoles = GetSelectListItemRoles(userRoles)
+                    ,
+                    NewFullName = user.FullName
+                    ,
+                    OldEmail = user.Email
+                    ,
+                    NewEmail = user.Email
+                    ,
+                    OldEmploymentDate = user.EmploymentDate.ToShortDateString()
+                    ,
+                    NewEmploymentDate = user.EmploymentDate
+                    ,
+                    OldRoles = string.Join(", ", userRoles)
+                    ,
+                    AvailableRoles = GetSelectListItemRoles(userRoles)
                 };
             }
         }
@@ -166,34 +187,95 @@ namespace TimeOffTracker.Business
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(model.IsChangePassword))
+            {
+                //добавляю "" т.к. ValidateAsync не генерирует NullReferenceException при получении null
+                result = UserManager.PasswordValidator.ValidateAsync(model.NewPassword + "").Result;
+                if (result.Succeeded)
+                {
+                    string token = UserManager.GeneratePasswordResetToken(user.Id);
+                    UserManager.ResetPassword(user.Id, token, model.NewPassword);
+                }
+            }
+
             return result;
         }
 
 
 
-        public ChangeUserPasswordViewModel GetUserForChangePasswordByEmail(ApplicationUserManager UserManager, string email)
+        public EditUserVacationDaysViewModel GetUserForEditVacationDaysByEmail(ApplicationUserManager UserManager, string email)
+        {
+            ApplicationUser user = UserManager.FindByEmail(email);
+            var userRoles = UserManager.GetRoles(user.Id);
+            Dictionary<string, int> vacations = new Dictionary<string, int>();
+            vacations = GetVacationDictionaryByEmail(email);
+
+            return new EditUserVacationDaysViewModel()
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                EmploymentDate = user.EmploymentDate.ToShortDateString(),
+                AllRoles = string.Join(", ", userRoles),
+                Vacations = vacations
+            };
+        }
+
+        //Возвращает строку с пречнем ошибок
+        public string EditUserVacationDays(EditUserVacationDaysViewModel model)
+        {
+            string result = "";
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                var listUserVacation = context.UserVacationDays.Where(m => m.User.Email == model.Email).ToList();
+                if (!(model.VacationNames.Count == model.VacationDays.Count))
+                {
+                    result = "Something went wrong! Please refresh and try again.";
+                    return result;
+                }
+                Dictionary<string, int> tempDic = new Dictionary<string, int>();
+                for (int i = 0; i < model.VacationNames.Count; i++)
+                {
+                    tempDic.Add(model.VacationNames[i], model.VacationDays[i]);
+                }
+                foreach (var temp in tempDic)
+                {
+                    foreach (var item in listUserVacation)
+                    {
+                        if (item.VacationType.Name == temp.Key)
+                        {
+                            if (temp.Value < 0)
+                            {
+                                result += temp.Key + " can't be less than zero" + "\n";
+                            }
+                            else
+                            {
+                                item.VacationDays = temp.Value;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    return result;
+                }
+                context.SaveChanges();
+            }
+            return result;
+        }
+
+        public Dictionary<string, int> GetVacationDictionaryByEmail(string email)
         {
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
-                var user = UserManager.FindByEmail(email);
-                var userRoles = UserManager.GetRoles(user.Id);
-
-                return new ChangeUserPasswordViewModel
+                Dictionary<string, int> result = new Dictionary<string, int>();
+                var listUserVacation = context.UserVacationDays.Where(m => m.User.Email == email).ToList();
+                foreach (var item in listUserVacation)
                 {
-                    FullName = user.FullName
-                    , Email = user.Email
-                    , EmploymentDate = user.EmploymentDate.ToShortDateString()
-                    , AllRoles = string.Join(", ", userRoles)
-                };
+                    result.Add(item.VacationType.Name, item.VacationDays);
+                }
+                return result;
             }
-        }
-
-        public IdentityResult ChangeUserPassword(ApplicationUserManager UserManager, ChangeUserPasswordViewModel model)
-        {
-            ApplicationUser user =  UserManager.FindByEmail(model.Email);
-
-            string token = UserManager.GeneratePasswordResetToken(user.Id);
-            return UserManager.ResetPassword(user.Id, token, model.NewPassword);
         }
 
         public IList<SelectListItem> GetSelectListItemRoles()

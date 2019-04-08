@@ -1,12 +1,12 @@
 ﻿@model TimeOffTracker.Models.EditUserViewModel
 @{
-    ViewBag.Title = "Редактирование пользователя";
+    ViewBag.Title = "Edit";
 }
 
 @using (Html.BeginForm("EditUser", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
     @Html.AntiForgeryToken()
-    <h3>Редактирование записи </h3>
+    <h3>Editing the account</h3>
 
     @Html.ValidationSummary("", new { @class = "text-danger" })
     <div class="form-group">
@@ -71,7 +71,36 @@
             }
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Редактировать запись</button>
 
-    @Html.ActionLink("Отмена", "AdminUsersPanel", null, new { @class = "btn btn-default" })
+    <div class="form-group">
+        <input type="checkbox"
+               id="IsChangePassword"
+               name="IsChangePassword"
+               value="true" onchange="change()"/> Set new password
+    </div>
+
+    <div class="form-group" id="DivNewPassword" hidden="hidden">
+        <label class="col-md-2 control-label" for="Key">New password</label>
+        <div class="col-md-10">
+            <input type="text" class="form-control" name="NewPassword" value="@Model.NewPassword"/>
+        </div>
+    </div>
+
+    <script>
+        var checkbox = document.getElementById("IsChangePassword");
+        var div = document.getElementById("DivNewPassword");
+        function change() {
+            if (checkbox.checked === true) {
+                div.hidden = "";
+            }
+            if(checkbox.checked === false)
+            {
+                div.hidden = "hidden";
+            }
+            };
+    </script>
+
+    <button type="submit" class="btn btn-primary">Edit account</button>
+
+    @Html.ActionLink("Cancel", "AdminUsersPanel", null, new { @class = "btn btn-default" })
 }
