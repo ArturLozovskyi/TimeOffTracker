@@ -7,7 +7,15 @@
 
     <ul class="nav navbar-nav navbar-right">
         
-         @if (User.IsInRole("Admin"))
+        @if (User.IsInRole("Employee"))
+        {
+            <li>
+                @Html.ActionLink("Create Request", "VacationRequest", "VacationRequest")
+            </li>
+        }
+        
+        
+        @if (User.IsInRole("Admin"))
          {
             <li>
                 @Html.ActionLink("Admin panel", "AdminUsersPanel", "Admin", routeValues: null, htmlAttributes: new { id = "loginLink" })

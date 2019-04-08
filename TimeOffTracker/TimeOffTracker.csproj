@@ -191,6 +191,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\VacationRequestController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ManagerController.cs" />
     <Compile Include="Global.asax.cs">
@@ -208,13 +209,19 @@
     <Compile Include="Migrations\201903231816064_ExtendedDb.Designer.cs">
       <DependentUpon>201903231816064_ExtendedDb.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904072044169_UpdateSchema.cs" />
+    <Compile Include="Migrations\201904072044169_UpdateSchema.Designer.cs">
+      <DependentUpon>201904072044169_UpdateSchema.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
+    <Compile Include="Models\CreateVacationRequestViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManagerModels\ListRequestsModel.cs" />
     <Compile Include="Models\ManagerModels\RequestsModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\VacationRequestViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -231,6 +238,7 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\create-request.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
     <Content Include="Scripts\jquery-3.3.1.slim.js" />
@@ -241,6 +249,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Views\VacationRequest\VacationRequest.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -308,6 +317,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903231816064_ExtendedDb.resx">
       <DependentUpon>201903231816064_ExtendedDb.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904072044169_UpdateSchema.resx">
+      <DependentUpon>201904072044169_UpdateSchema.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
