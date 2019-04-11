@@ -16,7 +16,7 @@ namespace TimeOffTracker.Business
             using (var context = new ApplicationDbContext())
             {
                 var r = context.RequestChecks
-                    .Where(s => s.Status.Name == "Ожидание1")   // Тестовый статус заменить на прод
+                    .Where(s => s.Status.Name == "Waiting")   // Тестовый статус заменить на прод
                     .AsEnumerable()     // Нужно юзать enumerable, потому что если его не юзать, то будет ругаться на TakeWhile
                     .GroupBy(g => g.Request)
                     .Select(group => group.OrderBy(o => o.Priority).TakeWhile(w => w.Approver.Id == id))
@@ -57,8 +57,7 @@ namespace TimeOffTracker.Business
                 if (request != null)
                 {
                     context.Entry(request).State = EntityState.Modified;
-
-                    RequestStatuses status = context.RequestStatuses.Find(1);
+                    RequestStatuses status = context.RequestStatuses.Where(s => s.Name == "Passed").Single();
                     request.Status = status;
                     context.SaveChanges();
                 }
@@ -78,11 +77,11 @@ namespace TimeOffTracker.Business
                         .OrderBy(o => o.Priority)
                         .ToList();
 
-                    RequestStatuses statusReject = context.RequestStatuses.Find(2);
+                    RequestStatuses status = context.RequestStatuses.Where(s => s.Name == "Rejected").Single();
                     for (int i = 0; i < rej.Count; i++)
                     {
                         context.Entry(rej[i]).State = EntityState.Modified;
-                        rej[i].Status = statusReject;
+                        rej[i].Status = status;
                         if (i == 0) { rej[i].Reason = reason; }
                     }
                     context.SaveChanges();

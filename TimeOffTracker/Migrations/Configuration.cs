@@ -53,7 +53,7 @@ namespace TimeOffTracker.Migrations
             CreateStartPeople(context);     // Добавление в БД несколько работников
 
             // Создание запроса ( убрать, когда будет реализована возможность создания запроса )
-            CreateTestRequest(context);
+           // CreateTestRequest(context);
             
         }
 
@@ -194,9 +194,9 @@ namespace TimeOffTracker.Migrations
         {
             var requestStatuses = new List<RequestStatuses>()
             {
-                new RequestStatuses(){ Name = "Подтвержден" },
-                new RequestStatuses(){ Name = "Отказано" },
-                new RequestStatuses(){ Name = "Ожидание" }
+                new RequestStatuses(){ Name = "Passed" },
+                new RequestStatuses(){ Name = "Rejected" },
+                new RequestStatuses(){ Name = "Waiting" }
             };
 
             context.RequestStatuses.AddRange(requestStatuses);

@@ -103,7 +103,7 @@ namespace TimeOffTracker.Controllers
                 db.Requests.Add(createRequestViewModel.VacationRequest);
                 db.SaveChanges();
 
-                var status = db.RequestStatuses.Where(s => s.Name == "Ожидание").Single();
+                var status = db.RequestStatuses.Where(s => s.Name == "Waiting").Single();
                 int priority = 1;
                 var approvers = createRequestViewModel.ApproversId;
                 foreach (var approver in approvers)
