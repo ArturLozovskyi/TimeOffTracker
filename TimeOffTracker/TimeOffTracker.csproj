@@ -207,9 +207,9 @@
     <Compile Include="Migrations\201903231816064_ExtendedDb.Designer.cs">
       <DependentUpon>201903231816064_ExtendedDb.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201904072044169_UpdateSchema.cs" />
-    <Compile Include="Migrations\201904072044169_UpdateSchema.Designer.cs">
-      <DependentUpon>201904072044169_UpdateSchema.cs</DependentUpon>
+    <Compile Include="Migrations\201904110506082_UpdateSchema.cs" />
+    <Compile Include="Migrations\201904110506082_UpdateSchema.Designer.cs">
+      <DependentUpon>201904110506082_UpdateSchema.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -228,6 +228,7 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Request.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -315,8 +316,8 @@
     <EmbeddedResource Include="Migrations\201903231816064_ExtendedDb.resx">
       <DependentUpon>201903231816064_ExtendedDb.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201904072044169_UpdateSchema.resx">
-      <DependentUpon>201904072044169_UpdateSchema.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201904110506082_UpdateSchema.resx">
+      <DependentUpon>201904110506082_UpdateSchema.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
