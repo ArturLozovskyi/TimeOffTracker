@@ -1,10 +1,21 @@
 var form = document.getElementById('verificationRequestForm');
 var submitBtn = document.getElementById('submitBtn');
-var addApproverBtn = document.getElementById('addApproverBtn');
 var from = document.getElementById('VacationRequest_DateStart');
 var to = document.getElementById('VacationRequest_DateEnd');
 
-form.addEventListener('input', checkFormValidity);
+form.addEventListener('click', checkFormValidity);
+
+from.addEventListener('change', () => {
+    to.setAttribute('min', from.value);
+});
+to.addEventListener('change', () => {
+    from.setAttribute('max', to.value);
+});
+
+$("[data-dismiss=modal]").bind('click', () => {
+    $('#requestModal').hide();
+    window.location.href = '/Home';
+})
 
 submitBtn.addEventListener('click', () => {
     if (!form.checkValidity()) {
@@ -20,16 +31,15 @@ submitBtn.addEventListener('click', () => {
         method: "POST",
         data: JSON.stringify(requestData),
         success: function (responce) {
-            $('#myModal').show();
+            console.log(requestData);
+            $('#requestModal').modal('show');
         }
     });
 });
 
-addApproverBtn.addEventListener('click', addApprover);
-
 function createRequestData(id) {
     id = '#' + id;
-    return $(id).serializeArray().reduce(function(obj, item) {
+    const request =  $(id).serializeArray().reduce(function(obj, item) {
         var part = obj;
         console.log('name: ', item.name, 'value: ', item.value);
         var parts = item.name.split('.');
@@ -54,22 +64,133 @@ function createRequestData(id) {
         part[parts[parts.length - 1]] = item.value;
         return obj;
     }, {});
+
+    const requestApprovers = [];
+    request.ApproversId = [];
+    ChooseApproversHelper.approvers.forEach((approver) => {
+        if (approver.selected) {
+            requestApprovers.push(approver);
+        }
+    });
+
+    requestApprovers.sort((a, b) => a.priority - b.priority);
+
+    requestApprovers.forEach((approver) => request.ApproversId.push(approver.Id));
+
+    return request;
+
 }
 function checkFormValidity() {
-    form.checkValidity() ? submitBtn.disabled = false : submitBtn.disabled = true;
+    form.checkValidity() && ChooseApproversHelper.selectedApprovers.childNodes.length !== 0 ? submitBtn.disabled = false : submitBtn.disabled = true;
 }
-function addApprover() {
-    var approvers = document.getElementsByClassName('approvers');
-    var newApprover = approvers[approvers.length - 1].cloneNode(true);
-    approvers[approvers.length - 1].append(newApprover);
+
+
+
+class ChooseApproversHelper {
+    static approvers;
+    static searchApprover;
+    static approversList;
+    static selectedApprovers;
+    static priority = 1;
+
+    static initHelper(approvers, searchApprover, approversList, selectedApprovers) {
+        this.approvers = approvers;
+        this.searchApprover = document.getElementById(searchApprover);
+        this.approversList = document.getElementById(approversList);
+        this.selectedApprovers = document.getElementById(selectedApprovers);
+        ChooseApproversHelper.config();
+    }
+
+    static initApprovers() {
+        const selectedApprovers = [];
+        this.approversList.innerHTML = '';
+        this.selectedApprovers.innerHTML = '';
+        this.approvers.forEach((approver) => {
+            if (approver.selected) {
+                selectedApprovers.push(approver);
+            } else {
+                this.approversList.append(new NotSelectedApprover('p', approver).node);
+            }
+        });
+        selectedApprovers.sort((a, b) => a.priority - b.priority);
+        selectedApprovers.forEach((selectedApprover) => this.selectedApprovers.append(new SelectedApprover('p', selectedApprover).node));
+        console.log(ChooseApproversHelper.approvers);
+    }
+
+    static config() {
+        this.searchApprover.addEventListener('focus', () => {
+            changeVisibility(this.approversList, 'visible');
+        });
+        this.searchApprover.addEventListener('focusout', () => {
+            setTimeout(() => {
+                changeVisibility(this.approversList, 'hidden');
+            }, 150);
+        });
+        this.searchApprover.addEventListener('input', () => this.filterApprovers());
+    }
+
+    static filterApprovers() {
+        this.approversList.innerHTML = '';
+        this.approvers
+            .filter((approver) => !approver.selected && approver.Email.indexOf(this.searchApprover.value) !== -1)
+            .forEach((approver) => this.approversList.append(new NotSelectedApprover('p', approver).node));
+    }
+
 }
-from.addEventListener('change', () => {
-   to.setAttribute('min', from.value); 
-});
-to.addEventListener('change', () => {
-   from.setAttribute('max', to.value); 
-});
-$("[data-dismiss=modal]").bind('click', () => {
-    $('#myModal').hide();
-    window.location.href = '/Home';
-})
+
+class Approver {
+    constructor(typeOfNode, approver) {
+        this.node = document.createElement(typeOfNode);
+        this.node.innerText = approver.Email;
+    }
+
+    onNodeClick() {
+        ChooseApproversHelper.initApprovers();
+        ChooseApproversHelper.searchApprover.value = '';
+    }
+}
+
+class NotSelectedApprover extends Approver {
+    constructor(typeOfNode, approver) {
+        super(typeOfNode, approver);
+        this.node.classList.add('approversItem');
+
+        this.node.onclick = () => {
+            approver.selected = true;
+            approver.priority = ChooseApproversHelper.priority++;
+            this.onNodeClick();
+        }
+    }
+}
+
+class SelectedApprover extends Approver {
+    constructor(typeOfNode, approver) {
+        super(typeOfNode, approver);
+        this.node.classList.add('selected-approver');
+
+        this.node.onclick = () => {
+            approver.selected = false;
+
+            ChooseApproversHelper.approvers.forEach((selectedApprover) => {
+                if (selectedApprover.selected && selectedApprover.priority > approver.priority) {
+                    selectedApprover.priority--;
+                }
+            });
+
+            approver.priority = -1;
+
+            ChooseApproversHelper.priority--;
+            
+            this.onNodeClick();
+        }
+    }
+}
+
+function changeVisibility(element, visibility) {
+    element.style.visibility = visibility;
+}
+
+function chooseApprovers(approvers) {
+    ChooseApproversHelper.initHelper(approvers, 'searchApprover', 'approversList', 'selectedApprovers');
+    ChooseApproversHelper.initApprovers();
+}

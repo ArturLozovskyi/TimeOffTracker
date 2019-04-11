@@ -35,33 +35,34 @@ namespace TimeOffTracker.Models
     public class Requests
     {
         [Key]
-        [DisplayName("Индекс")]
+        [DisplayName("Id")]
         public int Id { get; set; }
 
         [Required]
-        [DisplayName("Дата начала")]
+        [DisplayName("From")]
         //[DataType(DataType.Date)]
         public DateTime DateStart { get; set; }
 
         [Required]
-        [DisplayName("Дата конца")]
+        [DisplayName("To")]
         //[DataType(DataType.Date)]
         public DateTime DateEnd { get; set; }
 
-        [DisplayName("Заказывающий")]
+        [DisplayName("Employee")]
         virtual public ApplicationUser Employee { get; set; }
 
         [ForeignKey("Employee")]
         public string EmployeeId { get; set; }
 
-        [DisplayName("Тип отпуска")]
+        [DisplayName("Vacation type")]
         virtual public VacationTypes VacationTypes { get; set; }
 
+        [Required]
         [ForeignKey("VacationTypes")]
         public int VacationTypesId { get; set; }
 
-        [Required]
-        [DisplayName("Описание")]
+        [Required(ErrorMessage = "Please enter description.")]
+        [DisplayName("Description")]
         public string Description { get; set; }
     }
 
