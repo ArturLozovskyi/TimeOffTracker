@@ -122,5 +122,69 @@ namespace TimeOffTracker.Controllers
             }
             return Json(createRequestViewModel, JsonRequestBehavior.AllowGet);
         }
+
+
+
+        //Часть от меня
+        public ActionResult UserHistoryPanel()
+        {         
+            var history = new ListHistoryOfVacationViewModel();
+            ApplicationUser user = UserManager.FindByEmail(User.Identity.GetUserName());
+
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                var UserVacationDays = context.UserVacationDays.Where(x => x.User.Id == user.Id).Select(p=>p).ToList();
+                history.UserVacationDays = UserVacationDays.Select(p => new UserVacationDays
+                {
+                    Id = p.Id,
+                    User = p.User,
+                    LastUpdate = p.LastUpdate,
+                    VacationDays = p.VacationDays,
+                    VacationType = p.VacationType
+                }).ToList();
+
+
+
+                var request = (from r in context.Requests
+                               where r.Employee.Id == user.Id
+                               orderby r.DateEnd
+                               select new
+                               {
+                                   r.Id,
+                                   r.VacationTypes,
+                                   r.Description,                                   
+                                   r.DateStart,                                   
+                                   r.DateEnd,                                   
+                                   Reason = (from appr in context.RequestChecks
+                                             where appr.Request == r
+                                             select appr.Reason).ToList(),
+                                   Approvers = (from appr in context.RequestChecks
+                                             where appr.Request == r
+                                             select appr).ToList()                             
+                               }).ToList();
+
+                history.AllVacations = request.Select(p => new HistoryOfVacationViewModel
+                {
+                    Id = p.Id,
+                    VacationType = p.VacationTypes.Name,
+                    Description = p.Description,
+                    DateStart = p.DateStart,
+                    DateEnd = p.DateEnd,
+                    Days = ((p.DateEnd - p.DateStart).Days + 1).ToString(),
+                    Approvers = p.Approvers.Select(x => new RequestChecks
+                    {
+                         Id = x.Id
+                            , Approver = x.Approver
+                            , Priority = x.Priority
+                            , Status = x.Status
+                            , Reason = x.Reason
+                            , Request = x.Request
+                    }).ToList(),
+                    Reson = string.Join("", p.Reason)
+                }).ToList();
+
+                return View(history);             
+            }
+        }
     }
 }

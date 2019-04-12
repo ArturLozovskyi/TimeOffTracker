@@ -10,6 +10,9 @@
         @if (User.IsInRole("Employee"))
         {
             <li>
+                @Html.ActionLink("User panel", "UserHistoryPanel", "VacationRequest", routeValues: null, htmlAttributes: new { id = "loginLink" })
+            </li>
+            <li>
                 @Html.ActionLink("Create Request", "VacationRequest", "VacationRequest")
             </li>
         }
