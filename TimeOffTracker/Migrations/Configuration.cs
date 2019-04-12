@@ -6,7 +6,7 @@ namespace TimeOffTracker.Migrations
     using System;
     using System.Collections.Generic;
     using System.Data.Entity.Migrations;
-
+    using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<TimeOffTracker.Models.ApplicationDbContext>
     {
@@ -53,8 +53,69 @@ namespace TimeOffTracker.Migrations
             CreateStartPeople(context);     // Добавление в БД несколько работников
 
             // Создание запроса ( убрать, когда будет реализована возможность создания запроса )
-           // CreateTestRequest(context);
-            
+            // CreateTestRequest(context);
+            // Создание пожилого рабочего (для проверки сжигания и панели пользователя)
+            //CreateOld(context);
+        }
+
+        private void CreateOld(ApplicationDbContext context)
+        {
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+
+            ApplicationUser old = new ApplicationUser
+            {
+                UserName = "OLD@gmail.com",
+                Email = "OLD@gmail.com",
+                FullName = "OLD",
+                EmploymentDate = new DateTime(2015, 4, 4)
+            };
+
+            //context.Users.Add(old);
+            if (userManager.Create(old, "123456-Pass").Succeeded)
+            {
+                userManager.AddToRole(old.Id, "Employee");
+            }
+
+            var managerRole = context.Roles.Where(x => x.Name == "Manager").First();
+            List<ApplicationUser> allManagers = context.Users.Where(x => x.FullName == "Manager").ToList();
+            //List<VacationTypes> vacationsType = context.VacationTypes.ToList();
+            VacationTypes specialVacationType = new VacationTypes() { Name = "ForOld", MaxDays = 30 };
+            context.VacationTypes.Add(specialVacationType);
+
+            RequestStatuses statusSuccess = context.RequestStatuses.Where(x => x.Id == 1).First();
+
+
+            string description = "Special for me №";
+            int i = 0;
+
+            for (DateTime date = old.EmploymentDate.AddDays(7); date < DateTime.Now; date = date.AddMonths(3))
+            {
+                i++;
+                Requests requests = new Requests()
+                {
+                    Employee = old,
+                    VacationTypes = specialVacationType,
+                    DateStart = date,
+                    DateEnd = date.AddDays(i),
+                    Description = description + i
+                };
+                context.Requests.Add(requests);
+
+                int j = 0;
+                foreach (var item in allManagers)
+                {
+                    j++;
+                    RequestChecks requestChecks = new RequestChecks()
+                    {
+                        Request = requests,
+                        Priority = j,
+                        Status = statusSuccess,
+                        Approver = item
+                    };
+                    context.RequestChecks.Add(requestChecks);
+
+                }
+            }
         }
 
         private void CreateTestRequest(ApplicationDbContext context)
@@ -238,5 +299,6 @@ namespace TimeOffTracker.Migrations
                 userManager.AddToRole(startPerson.Id, role);
             }
         }
+
     }
 }

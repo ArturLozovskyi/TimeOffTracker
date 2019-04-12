@@ -13,5 +13,7 @@ namespace TimeOffTracker.Business
         List<string> BindingMissingVacationWithMessageByEmail(string email);
 
         void UpdateUserVacationDaysByEmail(string email);
+
+        List<UserVacationDays> GetSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, DateTime lowerLimit, DateTime upperLimit);
     }
 }

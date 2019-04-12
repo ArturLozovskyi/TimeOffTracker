@@ -6,7 +6,7 @@ using TimeOffTracker.Models;
 
 namespace TimeOffTracker.Business
 {
-    public class VacationControlDataModel: IVacationControlDataModel
+    public class VacationControlDataModel : IVacationControlDataModel
     {
         public void BindingMissingVacationByEmail(string email)
         {
@@ -75,33 +75,141 @@ namespace TimeOffTracker.Business
             }
             return false;
         }
+        private const int daysInYear = 365;
 
         public void UpdateUserVacationDaysByEmail(string email)
         {
-            using (ApplicationDbContext context = new ApplicationDbContext())
+            bool isOk = true;
+            DateTime tempLastUpdate = DateTime.Now;
+            //Обновление происходит пошагово, для того что бы верно просчитать кол-во дней для старых сотрудников
+            do
             {
-                ApplicationUser user = context.Users.Where(m => m.Email == email).First();
-
-                var listUserVacation = context.UserVacationDays.Where(m => m.User.Id == user.Id).ToList();
-
-                int daysInYear = 365;
-                bool isOk = true;
-                //Обновление происходит пошагово, для того что бы верно просчитать кол-во дней для старых сотрудников
-                do
+                using (ApplicationDbContext context = new ApplicationDbContext())
                 {
+                    ApplicationUser user = context.Users.Where(m => m.Email == email).First();
+
+                    List<UserVacationDays> userVacations = context.UserVacationDays.Where(m => m.User.Id == user.Id).ToList();
                     isOk = true;
-                    foreach(var userVac in listUserVacation)
+                    foreach (var userVac in userVacations)
                     {
                         if ((DateTime.Now - userVac.LastUpdate).Days >= daysInYear)
                         {
                             userVac.VacationDays += userVac.VacationType.MaxDays;
                             userVac.LastUpdate = new DateTime(userVac.LastUpdate.AddYears(1).Year, user.EmploymentDate.Month, user.EmploymentDate.Day);
+                            tempLastUpdate = userVac.LastUpdate;
                             isOk = false;
                         }
                     }
-                } while (!isOk);
+                    if (isOk == false)
+                    {
+                        context.SaveChanges();
+
+                        BurnOldYearInUserVacationDays(user.Email, tempLastUpdate);
+                    }
+                }
+
+            } while (!isOk);
+        }
+
+
+        //Скольк лет нужно отступить перед тем как сжечь 
+        private const int countYearsBeforeBurn = 2;
+        //Сжигает неиспользованые дни отпуска для каждого типа за один год после отступа countYearsBeforeBurn 
+        //основываясь на истории заявок
+        public void BurnOldYearInUserVacationDays(string userEmail, DateTime lastUpdate)
+        {
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                ApplicationUser user = context.Users.Where(m => m.Email == userEmail).First();
+
+                List<UserVacationDays> userVacations = context.UserVacationDays.Where(m => m.User.Id == user.Id).ToList();
+                if ((lastUpdate - user.EmploymentDate).Days >= daysInYear * (countYearsBeforeBurn))
+                {
+                    RequestStatuses requestStatus = context.RequestStatuses.Where(p => p.Id == 1).First();
+                    var userHistory = GetSumUserHistoryVacation(user.Email, requestStatus, lastUpdate.AddYears(-countYearsBeforeBurn), lastUpdate.AddYears(-countYearsBeforeBurn + 1));
+
+                    foreach (var userVac in userVacations)
+                    {
+                        for (int i = 0; i < userHistory.Count; i++)
+                        {
+                            if (userHistory[i].VacationType.Name == userVac.VacationType.Name)
+                            {
+                                //Тернарный оператор для защиты от некорректного поведения в случае
+                                //если пользователь воспользуется днями начисленными администратором
+                                int result = userVac.VacationType.MaxDays - userHistory[i].VacationDays;
+                                userVac.VacationDays -= result >= 0 ? result : 0;
+                            }
+                        }
+                    }
+                }
+
                 context.SaveChanges();
             }
+        }
+
+        //userEmail - email или логин пользователя 
+        //targetStatus - сортировка по статусу (если предать null то сортировки по статусу не будет)
+        //lowerLimit - нижняя временная граница (включена)
+        //upperLimit - верхняя временная граница (включена)
+        //Возвращает лист с суммой дней по каждому типу заявки
+        public List<UserVacationDays> GetSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, DateTime lowerLimit, DateTime upperLimit)
+        {
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                ApplicationUser user = context.Users.Where(m => m.Email == userEmail).First();
+
+                List<VacationTypes> vacationTypes = context.VacationTypes.ToList();
+                List<Requests> userRequests = context.Requests.Where(m => m.Employee.Id == user.Id).OrderBy(o => o.DateStart).ToList();
+
+                List<UserVacationDays> sumDays = new List<UserVacationDays>();
+
+                //Заполняем лист всеми возможными типами отпуска
+                foreach (var item in vacationTypes)
+                {
+                    sumDays.Add(new UserVacationDays { User = user, VacationDays = 0, VacationType = item });
+                }
+
+                foreach (var hVac in userRequests)
+                {
+                    if (hVac.DateStart >= lowerLimit && hVac.DateStart <= upperLimit)
+                    {
+                        for (int i = 0; i < sumDays.Count; i++)
+                        {
+                            if (sumDays[i].VacationType.Name == hVac.VacationTypes.Name)
+                            {
+                                //Добавляем 1 день для того что бы обе границы были включительны  
+                                if (targetStatus == null)
+                                {
+                                    sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
+                                }
+                                else if (IsTargetStatusInRequest(context, targetStatus, hVac))
+                                {
+                                    sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return sumDays;
+            }
+        }
+
+        private bool IsTargetStatusInRequest(ApplicationDbContext context, RequestStatuses type, Requests request)
+        {
+            List<RequestChecks> requestChecks = context.RequestChecks.Where(m => m.Request.Id == request.Id).ToList();
+            if (requestChecks.Count == 0)
+            {
+                return false;
+            }
+            foreach (var check in requestChecks)
+            {
+                if (check.Status.Id != type.Id)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
