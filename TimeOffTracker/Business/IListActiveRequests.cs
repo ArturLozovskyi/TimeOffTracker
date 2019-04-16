@@ -10,8 +10,9 @@ namespace TimeOffTracker.Business
     public interface IListActiveRequests
     {
         ListRequestsModel GetListRequestsModel(string id);
-        void Confirm(int? id);
-        void Reject(int? id, string reason);
+        ListRequestsModel GetInfoRequestsModel(string id);
         RequestsModel GetRequestsModel(int? id);
+        void Reject(int? id, string reason);
+        void Confirm(int? id);
     }
 }

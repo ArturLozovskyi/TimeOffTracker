@@ -54,19 +54,22 @@ namespace TimeOffTracker.Controllers.ManagerControllers
             return View("ManagerPanel", listActiveRequests.GetListRequestsModel(idUser));
         }
 
+        [Authorize(Roles = "Manager")]
         public ActionResult Details(int? id)
         {
             //id RequestCheck
-            if (id == null) { return HttpNotFound(); }
-
-            RequestsModel requestsModel = listActiveRequests.GetRequestsModel(id);
-
-            if (requestsModel != null){
-                return PartialView(requestsModel);
-            }
-            else{
+            if (id == null) {
                 return HttpNotFound();
             }
+            return PartialView(listActiveRequests.GetRequestsModel(id));
+        }
+
+        [Authorize(Roles = "Manager")]
+        public ActionResult History()
+        {
+            string id = User.Identity.GetUserId();
+            return View(listActiveRequests.GetInfoRequestsModel(id));
+            //return PartialView(model);
         }
     }
 }

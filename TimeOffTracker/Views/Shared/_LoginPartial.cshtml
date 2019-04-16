@@ -28,8 +28,12 @@
         @if (User.IsInRole("Manager"))
         {
             <li>
-                @Html.ActionLink("Active requests", "ManagerPanel", 
-                "Manager", routeValues:null, htmlAttributes: new { id = "loginLink" })
+                @Html.ActionLink("Active requests", "ManagerPanel", "Manager",
+                routeValues: null, htmlAttributes: new { id = "loginLink" })
+            </li>
+            <li>
+                @Html.ActionLink("Confirmation history", "History", "Manager",
+                routeValues: null, htmlAttributes: new { })
             </li>
         }
 

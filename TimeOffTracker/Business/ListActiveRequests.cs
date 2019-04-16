@@ -8,7 +8,7 @@ using TimeOffTracker.Models.ManagerModels;
 
 namespace TimeOffTracker.Business
 {
-    public class ListActiveRequests:IListActiveRequests
+    public class ListActiveRequests : IListActiveRequests
     {
 
         public ListRequestsModel GetListRequestsModel(string id)
@@ -18,7 +18,7 @@ namespace TimeOffTracker.Business
                 var r = context.RequestChecks
                     .Where(s => s.Status.Name == "Waiting")   // Тестовый статус заменить на прод
                     .AsEnumerable()     // Нужно юзать enumerable, потому что если его не юзать, то будет ругаться на TakeWhile
-                    .GroupBy(g => g.Request)
+                    .GroupBy(gr => gr.RequestId)
                     .Select(group => group.OrderBy(o => o.Priority).TakeWhile(w => w.Approver.Id == id))
                     .SelectMany(grop => grop)
                     .Select(rCheck => new
@@ -53,14 +53,31 @@ namespace TimeOffTracker.Business
         {
             using (var context = new ApplicationDbContext())
             {
-                RequestChecks request = context.RequestChecks.Find(id);
-                if (request != null)
+                RequestChecks requestChecks = context.RequestChecks.Find(id);
+                if (requestChecks != null)
                 {
-                    context.Entry(request).State = EntityState.Modified;
+                    context.Entry(requestChecks).State = EntityState.Modified;
                     RequestStatuses status = context.RequestStatuses.Where(s => s.Name == "Passed").Single();
-                    request.Status = status;
-                    context.SaveChanges();
+                    requestChecks.Status = status;
                 }
+
+                Requests request = requestChecks.Request;
+                int difference = (int)(request.DateEnd - request.DateStart).TotalDays;
+
+                var employeeId = request.EmployeeId;
+                var vacationTypeId = request.VacationTypesId;
+
+                UserVacationDays uvd = context.UserVacationDays
+                    .Where(u => u.User.Id == employeeId)
+                    .Where(v => v.VacationType.Id == vacationTypeId)
+                    .Single();
+
+                if (uvd != null)
+                {
+                    context.Entry(uvd).State = EntityState.Modified;
+                    uvd.VacationDays -= difference;
+                }
+                context.SaveChanges();
             }
         }
 
@@ -89,6 +106,40 @@ namespace TimeOffTracker.Business
             }
         }
 
+
+        /* Убрать лишние private методы */
+
+        private ApplicationUser GetUser(string id)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                return context.Users.Find(id);
+            }
+        }
+
+        private VacationTypes GetVacationType(int id)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                return context.VacationTypes.Find(id);
+            }
+        }
+        private Requests GetRequest(int id)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                return context.Requests.Find(id);
+            }
+        }
+
+        private RequestStatuses GetStatus(int id)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                return context.RequestStatuses.Find(id);
+            }
+        }
+
         public RequestsModel GetRequestsModel(int? id)
         {
             RequestsModel requestsModel;
@@ -101,12 +152,12 @@ namespace TimeOffTracker.Business
                     .AsEnumerable()
                     .Select(s => new RequestChecks
                     {
-                        Approver = s.Approver,
+                        Approver = GetUser(s.ApproverId),
                         Id = s.Id,
                         Priority = s.Priority,
-                        Status = s.Status,
+                        Status = GetStatus(s.StatusId),
                         Reason = s.Reason,
-                        Request = s.Request
+                        Request = GetRequest(s.RequestId)
                     }).ToList();
 
                 requestsModel = new RequestsModel
@@ -121,6 +172,26 @@ namespace TimeOffTracker.Business
                 };
             }
             return requestsModel;
+        }
+
+        public ListRequestsModel GetInfoRequestsModel(string id)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                // Лист ID реквестов там где есть текущий аппр
+                var request = context.RequestChecks
+                    .Where(w => w.ApproverId == id)
+                    .AsEnumerable()
+                    .Select(d => d.Id).ToList();
+
+                var item = new List<RequestsModel>();
+                foreach (var i in request)
+                {
+                    item.Add(GetRequestsModel(i));
+                }
+
+                return new ListRequestsModel() { Items = item };
+            }
         }
     }
 }

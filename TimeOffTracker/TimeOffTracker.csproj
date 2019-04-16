@@ -218,6 +218,7 @@
     <Compile Include="Models\AdminViewModels.cs" />
     <Compile Include="Models\CreateVacationRequestViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ManagerModels\HistoryModel.cs" />
     <Compile Include="Models\ManagerModels\ListRequestsModel.cs" />
     <Compile Include="Models\ManagerModels\RequestsModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -295,6 +296,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\VacationRequest\UserHistoryPanel.cshtml" />
+    <Content Include="Views\Manager\History.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
