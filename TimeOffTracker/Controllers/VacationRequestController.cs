@@ -11,6 +11,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using TimeOffTracker.Business;
 
 namespace TimeOffTracker.Controllers
 {
@@ -57,7 +58,7 @@ namespace TimeOffTracker.Controllers
 
         public ActionResult VacationRequest()
         {
-            using(var db = new ApplicationDbContext())
+            using (var db = new ApplicationDbContext())
             {
                 var currentUser = UserManager.FindById(User.Identity.GetUserId());
                 if (currentUser == null)
@@ -96,10 +97,28 @@ namespace TimeOffTracker.Controllers
                 return View("Error");
             }
 
+
+
+
             createRequestViewModel.VacationRequest.EmployeeId = currentUser.Id;
 
             using (var db = new ApplicationDbContext())
             {
+                int days = (int)(createRequestViewModel.VacationRequest.DateEnd - createRequestViewModel.VacationRequest.DateStart).TotalDays + 1;
+            
+                int userVacationDays = db.UserVacationDays.Where(v => v.User.Id == currentUser.Id && v.VacationType.Id == createRequestViewModel.VacationRequest.VacationTypesId).Single().VacationDays;
+
+                if (days > userVacationDays)
+                {
+                    Response.StatusCode = 500;
+
+                    return new JsonResult
+                    {
+                        Data = new { message = "You choose wrong vacation days" },
+                        JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                    };
+                }
+         
                 db.Requests.Add(createRequestViewModel.VacationRequest);
                 db.SaveChanges();
 
@@ -127,7 +146,7 @@ namespace TimeOffTracker.Controllers
 
         //Часть от меня
         public ActionResult UserHistoryPanel()
-        {         
+        {
             var history = new ListHistoryOfVacationViewModel();
             ApplicationUser user = UserManager.FindByEmail(User.Identity.GetUserName());
 
