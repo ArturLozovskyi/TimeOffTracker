@@ -12,7 +12,7 @@ to.addEventListener('change', () => {
     from.setAttribute('max', to.value);
 });
 
-$("[data-dismiss=modal]").bind('click', () => {
+$("#requestModal [data-dismiss=modal]").bind('click', () => {
     $('#requestModal').hide();
     window.location.href = '/Home';
 })
@@ -33,6 +33,10 @@ submitBtn.addEventListener('click', () => {
         success: function (responce) {
             console.log(requestData);
             $('#requestModal').modal('show');
+        },
+        error: function (error) {
+            console.log(error.responseJSON.message);
+            $('#errorModal').modal('show');
         }
     });
 });
