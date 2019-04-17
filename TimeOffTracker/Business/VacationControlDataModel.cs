@@ -116,7 +116,7 @@ namespace TimeOffTracker.Business
         private const int countYearsBeforeBurn = 2;
         //Сжигает неиспользованые дни отпуска для каждого типа за один год после отступа countYearsBeforeBurn 
         //основываясь на истории заявок
-        public void BurnOldYearInUserVacationDays(string userEmail, DateTime lastUpdate)
+        private void BurnOldYearInUserVacationDays(string userEmail, DateTime lastUpdate)
         {
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
@@ -126,7 +126,7 @@ namespace TimeOffTracker.Business
                 if ((lastUpdate - user.EmploymentDate).Days >= daysInYear * (countYearsBeforeBurn))
                 {
                     RequestStatuses requestStatus = context.RequestStatuses.Where(p => p.Id == 1).First();
-                    var userHistory = GetSumUserHistoryVacation(user.Email, requestStatus, lastUpdate.AddYears(-countYearsBeforeBurn), lastUpdate.AddYears(-countYearsBeforeBurn + 1));
+                    var userHistory = GetSumUserHistoryVacation(user.Email, requestStatus, true, lastUpdate.AddYears(-countYearsBeforeBurn), lastUpdate.AddYears(-countYearsBeforeBurn + 1));
 
                     foreach (var userVac in userVacations)
                     {
@@ -149,10 +149,11 @@ namespace TimeOffTracker.Business
 
         //userEmail - email или логин пользователя 
         //targetStatus - сортировка по статусу (если предать null то сортировки по статусу не будет)
+        //allChainInStatus - цепочка подтверждений целиком состоит из targetStatus?
         //lowerLimit - нижняя временная граница (включена)
         //upperLimit - верхняя временная граница (включена)
-        //Возвращает лист с суммой дней по каждому типу заявки
-        public List<UserVacationDays> GetSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, DateTime lowerLimit, DateTime upperLimit)
+        //Возвращает лист с суммой дней по каждому типу заявки      
+        public List<UserVacationDays> GetSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, bool allChainInStatus, DateTime lowerLimit, DateTime upperLimit)
         {
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
@@ -171,7 +172,7 @@ namespace TimeOffTracker.Business
 
                 foreach (var hVac in userRequests)
                 {
-                    if (hVac.DateStart >= lowerLimit && hVac.DateStart <= upperLimit)
+                    if (hVac.DateStart.Date >= lowerLimit.Date && hVac.DateStart.Date <= upperLimit.Date)
                     {
                         for (int i = 0; i < sumDays.Count; i++)
                         {
@@ -182,7 +183,11 @@ namespace TimeOffTracker.Business
                                 {
                                     sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
                                 }
-                                else if (IsTargetStatusInRequest(context, targetStatus, hVac))
+                                else if (allChainInStatus && DoesAllChainContainSatus(context, targetStatus, hVac))
+                                {
+                                    sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
+                                }
+                                else if (!allChainInStatus && DoesChainContainStatus(context, targetStatus, hVac))
                                 {
                                     sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
                                 }
@@ -195,7 +200,24 @@ namespace TimeOffTracker.Business
             }
         }
 
-        private bool IsTargetStatusInRequest(ApplicationDbContext context, RequestStatuses type, Requests request)
+        private bool DoesChainContainStatus(ApplicationDbContext context, RequestStatuses type, Requests request)
+        {
+            List<RequestChecks> requestChecks = context.RequestChecks.Where(m => m.Request.Id == request.Id).ToList();
+            if (requestChecks.Count == 0)
+            {
+                return false;
+            }
+            foreach (var check in requestChecks)
+            {
+                if (check.Status.Id == type.Id)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool DoesAllChainContainSatus(ApplicationDbContext context, RequestStatuses type, Requests request)
         {
             List<RequestChecks> requestChecks = context.RequestChecks.Where(m => m.Request.Id == request.Id).ToList();
             if (requestChecks.Count == 0)

@@ -36,6 +36,8 @@ submitBtn.addEventListener('click', () => {
         },
         error: function (error) {
             console.log(error.responseJSON.message);
+            var errorBlock = document.getElementById('textError');
+            errorBlock.innerHTML = error.responseJSON.message;
             $('#errorModal').modal('show');
         }
     });

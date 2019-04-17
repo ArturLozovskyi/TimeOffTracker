@@ -49,16 +49,16 @@ namespace TimeOffTracker.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "Email")]
         [EmailAddress]
         public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Пароль")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
-        [Display(Name = "Запомнить меня")]
+        [Display(Name = "Remember me")]
         public bool RememberMe { get; set; }
     }
 

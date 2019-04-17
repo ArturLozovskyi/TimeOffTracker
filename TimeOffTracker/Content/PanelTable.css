@@ -1,0 +1,13 @@
+﻿.parent-panel
+{
+    justify-content: center;
+    
+    /*display:flex;*/
+}
+
+.child-panel
+{
+      margin-left: auto;
+  margin-right: auto;
+    /*flex:1;*/ 
+}

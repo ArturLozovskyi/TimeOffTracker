@@ -24,14 +24,10 @@ namespace TimeOffTracker.Business
                                 orderby user.LockoutEndDateUtc
                                 select new
                                 {
-                                    FullName = user.FullName
-                                    ,
-                                    user.Email
-                                    ,
-                                    user.EmploymentDate
-                                    ,
-                                    user.LockoutEndDateUtc
-                                    ,
+                                    FullName = user.FullName,
+                                    user.Email,
+                                    user.EmploymentDate,
+                                    user.LockoutEndDateUtc ,
                                     RoleNames = (from userRole in user.Roles
                                                  join role in context.Roles
                                                  on userRole.RoleId
@@ -42,14 +38,10 @@ namespace TimeOffTracker.Business
 
                 allUsers.MenuItems = userList.Select(p => new ShowUserViewModel
                 {
-                    FullName = p.FullName
-                    ,
-                    Email = p.Email
-                    ,
-                    LockoutTime = p.LockoutEndDateUtc
-                    ,
-                    AllRoles = string.Join(", ", p.RoleNames)
-                    ,
+                    FullName = p.FullName ,
+                    Email = p.Email,
+                    LockoutTime = p.LockoutEndDateUtc ,
+                    AllRoles = string.Join(", ", p.RoleNames) ,
                     EmploymentDate = p.EmploymentDate.ToShortDateString()
                 }).ToList();
 
@@ -66,14 +58,10 @@ namespace TimeOffTracker.Business
 
                 return new ShowUserViewModel
                 {
-                    FullName = user.FullName
-                        ,
-                    Email = user.Email
-                        ,
-                    LockoutTime = user.LockoutEndDateUtc
-                        ,
-                    AllRoles = string.Join(", ", userRoles)
-                        ,
+                    FullName = user.FullName ,
+                    Email = user.Email ,
+                    LockoutTime = user.LockoutEndDateUtc,
+                    AllRoles = string.Join(", ", userRoles),
                     EmploymentDate = user.EmploymentDate.ToShortDateString()
                 };
             }
@@ -85,12 +73,9 @@ namespace TimeOffTracker.Business
         {
             ApplicationUser user = new ApplicationUser
             {
-                UserName = model.Email
-                ,
-                Email = model.Email
-                ,
-                FullName = model.FullName
-                ,
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName ,
                 EmploymentDate = model.EmploymentDate
             };
 
@@ -135,20 +120,13 @@ namespace TimeOffTracker.Business
 
                 return new EditUserViewModel
                 {
-                    OldFullName = user.FullName
-                    ,
-                    NewFullName = user.FullName
-                    ,
-                    OldEmail = user.Email
-                    ,
-                    NewEmail = user.Email
-                    ,
-                    OldEmploymentDate = user.EmploymentDate.ToShortDateString()
-                    ,
-                    NewEmploymentDate = user.EmploymentDate
-                    ,
-                    OldRoles = string.Join(", ", userRoles)
-                    ,
+                    OldFullName = user.FullName,
+                    NewFullName = user.FullName,
+                    OldEmail = user.Email,
+                    NewEmail = user.Email,
+                    OldEmploymentDate = user.EmploymentDate.ToShortDateString(),
+                    NewEmploymentDate = user.EmploymentDate,
+                    OldRoles = string.Join(", ", userRoles),
                     AvailableRoles = GetSelectListItemRoles(userRoles)
                 };
             }
@@ -189,7 +167,7 @@ namespace TimeOffTracker.Business
 
             if (!string.IsNullOrWhiteSpace(model.IsChangePassword))
             {
-                //добавляю "" т.к. ValidateAsync не генерирует NullReferenceException при получении null
+                //добавляю "" т.к. ValidateAsync генерирует NullReferenceException при получении null
                 result = UserManager.PasswordValidator.ValidateAsync(model.NewPassword + "").Result;
                 if (result.Succeeded)
                 {

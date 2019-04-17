@@ -6,22 +6,29 @@ using System;
 
 namespace TimeOffTracker.Models
 {
-    public class VacationRequestViewModel
+    public class VacationRequestViewModels
     {   [Required]
         public ApplicationUser User { get; set; }
         [Required]
         public Requests VacationRequest { get; set; }
         [Required]
         public List<VacationTypes> VacationTypes { get; set; }
-
         [Required]
         public List<ApplicationUser> Approvers { get; set; }
     }
 
-    //Часть от меня
+    public class CreateVacationRequestViewModel
+    {
+        [Required]
+        public Requests VacationRequest { get; set; }
+        [Required]
+        public List<string> ApproversId { get; set; }
+    }
+
+
     public class HistoryOfVacationViewModel
     {
-        public int Id { get; set; } // id Request
+        public int Id { get; set; }
 
         [Display(Name = "Type vacation")]
         public string VacationType { get; set; }
@@ -44,7 +51,7 @@ namespace TimeOffTracker.Models
         public string Reson { get; set; }
 
     }
-    //И тоже от меня
+
     public class ListHistoryOfVacationViewModel
     {
         public List<UserVacationDays> UserVacationDays { get; set; }
