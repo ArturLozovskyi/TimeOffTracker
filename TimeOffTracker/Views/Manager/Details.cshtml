@@ -11,15 +11,29 @@
             <dd>@Model.FullNameEmployee</dd>
             <dt>Email</dt>
             <dd>@Model.EmailEmployee</dd>
+            <dt>Type</dt>
+            <dd>@Model.VacationType</dd>
             <dt>Dates</dt>
-            <dd>@Model.DateStart</dd>
-            <dd>@Model.DateEnd</dd>
-            <dt>Approvers</dt>
-            @foreach (var a in Model.Approvers)
-            {
-                <dd>@a.Approver.Email @a.Approver.FullName @a.Priority @a.Status.Name</dd>
-            }
-
-        </dl>
-    </div>
+            <dd>@Model.DateStart.ToShortDateString()</dd>
+            <dd>@Model.DateEnd.ToShortDateString()</dd>
+            </dl>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                <caption>Approvers</caption>
+                <tr class="label-info">
+                    <th>Full name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+                @foreach (var appr in Model.Approvers)
+                {
+                    <tr>
+                        <td>@appr.Approver.FullName</td>
+                        <td>@appr.Approver.Email</td>
+                        <td>@appr.Status.Name</td>
+                    </tr>
+                }
+                </table>
+            </div>
+        </div>
 </div>

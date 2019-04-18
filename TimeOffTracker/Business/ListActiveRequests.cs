@@ -168,7 +168,8 @@ namespace TimeOffTracker.Business
                     FullNameEmployee = activeRequest.Employee.FullName,
                     VacationType = activeRequest.VacationTypes.Name,
                     Approvers = list,
-                    EmailEmployee = activeRequest.Employee.Email
+                    EmailEmployee = activeRequest.Employee.Email,
+                    Description = activeRequest.Description
                 };
             }
             return requestsModel;
@@ -180,6 +181,7 @@ namespace TimeOffTracker.Business
             {
                 // Лист ID реквестов там где есть текущий аппр
                 var request = context.RequestChecks
+                    .OrderBy(o => o.Request.Employee.FullName)
                     .Where(w => w.ApproverId == id)
                     .AsEnumerable()
                     .Select(d => d.Id).ToList();

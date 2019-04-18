@@ -6,177 +6,177 @@
 }
 <link rel="stylesheet" href="~/Content/PanelTable.css">
 
-<div style="display:table; width:100%">
+<div class="table-responsive">
+    <div style="display:table; width:100%">
 
-    <div class="parent-panel">
-        <div class="panel panel-info child-panel">
-            <div class="panel-heading">
-                <b>Your vacation days</b>
-            </div>
+        <div class="parent-panel">
+            <div class="panel panel-info child-panel">
+                <div class="panel-heading">
+                    <b>Your vacation days</b>
+                </div>
 
-            <table class="table table-condensed">
-                <tr>
-                    <th>Vacation name</th>
-                    <th>Days</th>
-                </tr>
-                @if (Model.UserVacationDays.Count == 0)
-                {
+                <table class="table table-condensed">
                     <tr>
-                        <td colspan="2" class="text-center">Oh! Something went wrong! Please inform the administrator!</td>
+                        <th>Vacation name</th>
+                        <th>Days</th>
                     </tr>
-                }
-                else
-                {
-                    foreach (var item in Model.UserVacationDays)
+                    @if (Model.UserVacationDays.Count == 0)
                     {
                         <tr>
-                            <td>@item.VacationType.Name</td>
-                            <td>@item.VacationDays</td>
+                            <td colspan="2" class="text-center">Oh! Something went wrong! Please inform the administrator!</td>
                         </tr>
                     }
-                }
-            </table>
-        </div>
-    </div>
-
-    <br />
-
-    <div class="parent-panel">
-        <div class="panel panel-primary child-panel">
-            <div class="panel-heading">
-                <b>Your current vacation requests</b>
-            </div>
-            <table class="table table-bordered table-striped">
-                <tr>
-                    <th>Type</th>
-                    <th>Description</th>
-                    <th>Date start</th>
-                    <th>Date end</th>
-                    <th>Days</th>
-                    <th>Approve</th>
-                    <th>Info</th>
-                    <th>@Html.ActionLink("Send new request", "VacationRequest", "VacationRequest", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
-                </tr>
-
-                @{
-                    int i = 0;
-                    foreach (var item in Model.AllVacations)
+                    else
                     {
-                        if (item.DateEnd.Date >= DateTime.Now.Date)
+                        foreach (var item in Model.UserVacationDays)
                         {
-                            i++;
                             <tr>
-                                <th>@item.VacationType</th>
-                                <th>@item.Description</th>
-                                <th>@item.DateStart.ToShortDateString()</th>
-                                <th>@item.DateEnd.ToShortDateString()</th>
-                                <th>@item.Days</th>
-                                <th>
-                                    @if (@item.Approvers != null)
-                                    {
-                                        foreach (var appr in @item.Approvers)
-                                        {
-                                            <p>
-                                                @(appr.Priority + ". " + appr.Approver.FullName + " (" + appr.Approver.Email + ")" + ":")
-                                                @switch (appr.Status.Id)
-                                                {
-                                                    case 1:
-                                                        <span class="text-success">@appr.Status.Name</span>
-                                                        break;
-                                                    case 2:
-                                                        <span class="text-danger">@appr.Status.Name</span>
-                                                        break;
-                                                    default:
-                                                        <span class="text-warning">@appr.Status.Name</span>
-                                                        break;
-                                                }
-                                            </p>
-                                        }
-                                    }
-                                </th>
-                                <th colspan="2"><p class="text-danger">@item.Reson</p></th>
+                                <td>@item.VacationType.Name</td>
+                                <td>@item.VacationDays</td>
                             </tr>
                         }
                     }
-                    if (i == 0)
-                    {
-                        <tr>
-                            <td colspan="8" class="text-center">Oh! This table is empty. You can create a new vacation request right now!</td>
-                        </tr>
-                    }
-                }
-            </table>
-        </div>
-    </div>
-
-    <br />
-
-    <div class="parent-panel">
-        <div class="panel panel-default child-panel">
-            <div class="panel-body">
-                <b>History of your vacation requests</b>
+                </table>
             </div>
-            <table class="table table-bordered table-striped">
-                <tr>
-                    <th>Type</th>
-                    <th>Description</th>
-                    <th>Date start</th>
-                    <th>Date end</th>
-                    <th>Days</th>
-                    <th>Approve</th>
-                    <th>Info</th>
-                </tr>
+        </div>
 
-                @{
-                    int j = 0;
-                    foreach (var item in Model.AllVacations)
-                    {
-                        if (item.DateEnd.Date < DateTime.Now.Date)
+        <br />
+
+        <div class="parent-panel">
+            <div class="panel panel-primary child-panel">
+                <div class="panel-heading">
+                    <b>Your current vacation requests</b>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Date start</th>
+                        <th>Date end</th>
+                        <th>Days</th>
+                        <th>Approve</th>
+                        <th>Info</th>
+                        <th>@Html.ActionLink("Send new request", "VacationRequest", "VacationRequest", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })</th>
+                    </tr>
+
+                    @{
+                        int i = 0;
+                        foreach (var item in Model.AllVacations)
                         {
-                            j++;
-                            <tr>
-                                <th>@item.VacationType</th>
-                                <th>@item.Description</th>
-                                <th>@item.DateStart.ToShortDateString()</th>
-                                <th>@item.DateEnd.ToShortDateString()</th>
-                                <th>@item.Days</th>
-                                <th>
-                                    @if (@item.Approvers != null)
-                                    {
-                                        foreach (var appr in @item.Approvers)
+                            if (item.DateEnd.Date >= DateTime.Now.Date)
+                            {
+                                i++;
+                                <tr>
+                                    <th>@item.VacationType</th>
+                                    <th>@item.Description</th>
+                                    <th>@item.DateStart.ToShortDateString()</th>
+                                    <th>@item.DateEnd.ToShortDateString()</th>
+                                    <th>@item.Days</th>
+                                    <th>
+                                        @if (@item.Approvers != null)
                                         {
-                                            <p>
-                                                @(appr.Priority + ". " + appr.Approver.FullName + " (" + appr.Approver.Email + ")" + ":")
-                                                @switch (appr.Status.Id)
-                                                {
-                                                    case 1:
-                                                        <span class="text-success">@appr.Status.Name</span>
-                                                        break;
-                                                    case 2:
-                                                        <span class="text-danger">@appr.Status.Name</span>
-                                                        break;
-                                                    default:
-                                                        <span class="text-warning">@appr.Status.Name</span>
-                                                        break;
-                                                }
-                                            </p>
+                                            foreach (var appr in @item.Approvers)
+                                            {
+                                                <p>
+                                                    @(appr.Priority + ". " + appr.Approver.FullName + " (" + appr.Approver.Email + ")" + ":")
+                                                    @switch (appr.Status.Id)
+                                                    {
+                                                        case 1:
+                                                            <span class="text-success">@appr.Status.Name</span>
+                                                            break;
+                                                        case 2:
+                                                            <span class="text-danger">@appr.Status.Name</span>
+                                                            break;
+                                                        default:
+                                                            <span class="text-warning">@appr.Status.Name</span>
+                                                            break;
+                                                    }
+                                                </p>
+                                            }
                                         }
-                                    }
-                                </th>
-                                <th><p class="text-danger">@item.Reson</p></th>
+                                    </th>
+                                    <th colspan="2"><p class="text-danger">@item.Reson</p></th>
+                                </tr>
+                            }
+                        }
+                        if (i == 0)
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center">Oh! This table is empty. You can create a new vacation request right now!</td>
                             </tr>
                         }
                     }
-                    if (j == 0)
-                    {
-                        <tr>
-                            <td colspan="7" class="text-center">Oh! This table is empty. It's time to get a vacation!</td>
-                        </tr>
+                </table>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="parent-panel">
+            <div class="panel panel-default child-panel">
+                <div class="panel-body">
+                    <b>History of your vacation requests</b>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Date start</th>
+                        <th>Date end</th>
+                        <th>Days</th>
+                        <th>Approve</th>
+                        <th>Info</th>
+                    </tr>
+
+                    @{
+                        int j = 0;
+                        foreach (var item in Model.AllVacations)
+                        {
+                            if (item.DateEnd.Date < DateTime.Now.Date)
+                            {
+                                j++;
+                                <tr>
+                                    <th>@item.VacationType</th>
+                                    <th>@item.Description</th>
+                                    <th>@item.DateStart.ToShortDateString()</th>
+                                    <th>@item.DateEnd.ToShortDateString()</th>
+                                    <th>@item.Days</th>
+                                    <th>
+                                        @if (@item.Approvers != null)
+                                        {
+                                            foreach (var appr in @item.Approvers)
+                                            {
+                                                <p>
+                                                    @(appr.Priority + ". " + appr.Approver.FullName + " (" + appr.Approver.Email + ")" + ":")
+                                                    @switch (appr.Status.Id)
+                                                    {
+                                                        case 1:
+                                                            <span class="text-success">@appr.Status.Name</span>
+                                                            break;
+                                                        case 2:
+                                                            <span class="text-danger">@appr.Status.Name</span>
+                                                            break;
+                                                        default:
+                                                            <span class="text-warning">@appr.Status.Name</span>
+                                                            break;
+                                                    }
+                                                </p>
+                                            }
+                                        }
+                                    </th>
+                                    <th><p class="text-danger">@item.Reson</p></th>
+                                </tr>
+                            }
+                        }
+                        if (j == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Oh! This table is empty. It's time to get a vacation!</td>
+                            </tr>
+                        }
                     }
-                }
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-
-
