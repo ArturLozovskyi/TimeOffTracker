@@ -73,7 +73,7 @@ namespace TimeOffTracker.Business
                 var userVacation = db.UserVacationDays.Where(v => v.User.Id == currentUser.Id && v.VacationType.Id == model.VacationRequest.VacationTypesId).First();
 
                 var waitStatus = db.RequestStatuses.Where(x => x.Id == 3).First();
-                var userHistory = _vacationControlDataModel.GetSumUserHistoryVacation(currentUser.Email, waitStatus, false, userVacation.LastUpdate.AddYears(-1), DateTime.Now.Date);
+                var userHistory = _vacationControlDataModel.GetAllSumUserHistoryVacation(currentUser.Email, waitStatus, false);
 
                 foreach (var item in userHistory)
                 {
@@ -81,9 +81,13 @@ namespace TimeOffTracker.Business
                     {
                         if (userVacation.VacationDays < (item.VacationDays + days))
                         {
-                            return "The number of specified days could exceed the limit."
-                                + " Please change the number of days or wait for the results of the verification of previous requests."
-                                + " Now for " + userVacation.VacationType.Name + " you can get: " + (userVacation.VacationDays - item.VacationDays).ToString() + " days";
+                            string message = "The number of specified days could exceed the limit."
+                                + " Please change the number of days or wait for the results of the verification of previous requests.";
+                            if ((userVacation.VacationDays - item.VacationDays) > 0)
+                            {
+                                message += " Now for " + userVacation.VacationType.Name + " you can get: " + (userVacation.VacationDays - item.VacationDays).ToString() + " days";
+                            }
+                            return message;
                         }
                     }
                 }

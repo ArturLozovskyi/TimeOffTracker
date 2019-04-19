@@ -15,5 +15,6 @@ namespace TimeOffTracker.Business
         void UpdateUserVacationDaysByEmail(string email);
 
         List<UserVacationDays> GetSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, bool allChainInStatus, DateTime lowerLimit, DateTime upperLimit);
+        List<UserVacationDays> GetAllSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, bool allChainInStatus);
     }
 }

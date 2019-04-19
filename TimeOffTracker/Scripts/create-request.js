@@ -35,9 +35,19 @@ submitBtn.addEventListener('click', () => {
             $('#requestModal').modal('show');
         },
         error: function (error) {
-            console.log(error.responseJSON.message);
             var errorBlock = document.getElementById('textError');
-            errorBlock.innerHTML = error.responseJSON.message;
+            if (error.responseJSON.message == undefined)
+            {
+                errorBlock.innerHTML = "Incorrect data or you have spent the limit for this type of vacation.";
+            }
+            else
+            {
+                console.log(error.responseJSON.message);
+                errorBlock.innerHTML = error.responseJSON.message;
+            }
+
+      
+
             $('#errorModal').modal('show');
         }
     });
@@ -93,17 +103,12 @@ function checkFormValidity() {
 
 
 class ChooseApproversHelper {
-    static approvers;
-    static searchApprover;
-    static approversList;
-    static selectedApprovers;
-    static priority = 1;
-
     static initHelper(approvers, searchApprover, approversList, selectedApprovers) {
         this.approvers = approvers;
         this.searchApprover = document.getElementById(searchApprover);
         this.approversList = document.getElementById(approversList);
         this.selectedApprovers = document.getElementById(selectedApprovers);
+        this.priority = 1;
         ChooseApproversHelper.config();
     }
 

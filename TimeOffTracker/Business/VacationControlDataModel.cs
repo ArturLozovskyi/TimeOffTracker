@@ -200,6 +200,58 @@ namespace TimeOffTracker.Business
             }
         }
 
+
+
+        //userEmail - email или логин пользователя 
+        //targetStatus - сортировка по статусу (если предать null то сортировки по статусу не будет)
+        //allChainInStatus - цепочка подтверждений целиком состоит из targetStatus?
+        //Возвращает лист с суммой дней по каждому типу заявки      
+        public List<UserVacationDays> GetAllSumUserHistoryVacation(string userEmail, RequestStatuses targetStatus, bool allChainInStatus)
+        {
+            using (ApplicationDbContext context = new ApplicationDbContext())
+            {
+                ApplicationUser user = context.Users.Where(m => m.Email == userEmail).First();
+
+                List<VacationTypes> vacationTypes = context.VacationTypes.ToList();
+                List<Requests> userRequests = context.Requests.Where(m => m.Employee.Id == user.Id).OrderBy(o => o.DateStart).ToList();
+
+                List<UserVacationDays> sumDays = new List<UserVacationDays>();
+
+                //Заполняем лист всеми возможными типами отпуска
+                foreach (var item in vacationTypes)
+                {
+                    sumDays.Add(new UserVacationDays { User = user, VacationDays = 0, VacationType = item });
+                }
+
+                foreach (var hVac in userRequests)
+                {
+                    for (int i = 0; i < sumDays.Count; i++)
+                    {
+                        if (sumDays[i].VacationType.Name == hVac.VacationTypes.Name)
+                        {
+                            //Добавляем 1 день для того что бы обе границы были включительны  
+                            if (targetStatus == null)
+                            {
+                                sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
+                            }
+                            else if (allChainInStatus && DoesAllChainContainSatus(context, targetStatus, hVac))
+                            {
+                                sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
+                            }
+                            else if (!allChainInStatus && DoesChainContainStatus(context, targetStatus, hVac))
+                            {
+                                sumDays[i].VacationDays += ((hVac.DateEnd.Date.AddDays(1)) - hVac.DateStart.Date).Days;
+                            }
+                        }
+                    }
+                }
+
+                return sumDays;
+            }
+        }
+
+
+
         private bool DoesChainContainStatus(ApplicationDbContext context, RequestStatuses type, Requests request)
         {
             List<RequestChecks> requestChecks = context.RequestChecks.Where(m => m.Request.Id == request.Id).ToList();
