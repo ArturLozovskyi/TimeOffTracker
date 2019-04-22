@@ -36,17 +36,7 @@ submitBtn.addEventListener('click', () => {
         },
         error: function (error) {
             var errorBlock = document.getElementById('textError');
-            if (error.responseJSON.message == undefined)
-            {
-                errorBlock.innerHTML = "Incorrect data or you have spent the limit for this type of vacation.";
-            }
-            else
-            {
-                console.log(error.responseJSON.message);
-                errorBlock.innerHTML = error.responseJSON.message;
-            }
-
-      
+            errorBlock.innerHTML = "Incorrect data or you have spent the limit for this type of vacation.";
 
             $('#errorModal').modal('show');
         }

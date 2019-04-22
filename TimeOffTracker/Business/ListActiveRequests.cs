@@ -62,7 +62,7 @@ namespace TimeOffTracker.Business
                 }
 
                 Requests request = requestChecks.Request;
-                int difference = (int)(request.DateEnd - request.DateStart).TotalDays;
+                int difference = ((int)(request.DateEnd - request.DateStart).TotalDays + 1);
 
                 var employeeId = request.EmployeeId;
                 var vacationTypeId = request.VacationTypesId;

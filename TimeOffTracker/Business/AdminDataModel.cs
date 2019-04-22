@@ -51,8 +51,13 @@ namespace TimeOffTracker.Business
 
         public ShowUserViewModel GetUserForShowByEmail(ApplicationUserManager UserManager, string email)
         {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
+
                 var user = UserManager.FindByEmail(email);
                 var userRoles = UserManager.GetRoles(user.Id);
 
@@ -97,6 +102,10 @@ namespace TimeOffTracker.Business
 
         public void SwitchLockoutUserByEmail(ApplicationUserManager UserManager, string email)
         {
+            if(string.IsNullOrWhiteSpace(email))
+            {
+                return;
+            }
             var user = UserManager.FindByEmail(email);
             user.LockoutEnabled = true;
             if (user.LockoutEndDateUtc == null || user.LockoutEndDateUtc == DateTimeOffset.MinValue)
@@ -115,6 +124,10 @@ namespace TimeOffTracker.Business
         {
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    return null;
+                }
                 var user = UserManager.FindByEmail(email);
                 var userRoles = UserManager.GetRoles(user.Id);
 
@@ -134,10 +147,16 @@ namespace TimeOffTracker.Business
 
         public IdentityResult EditUser(ApplicationUserManager UserManager, EditUserViewModel model)
         {
-            ApplicationUser user = UserManager.FindByEmail(model.OldEmail);
+            IdentityResult result;
+
+            ApplicationUser user = UserManager.FindByEmail(model.OldEmail + "");
+            if(user == null)
+            {
+                return new IdentityResult("User is not exist");
+            }
+
             var rolesUser = UserManager.GetRoles(user.Id);
 
-            IdentityResult result;
             if (rolesUser.Count() > 0)
             {
                 //Удалаем все старые роли перед обновлением
@@ -154,7 +173,7 @@ namespace TimeOffTracker.Business
 
             result = UserManager.Update(user);
 
-            if (result.Succeeded)
+            if (result.Succeeded && model.SelectedRoles != null)
             {
                 foreach (string role in model.SelectedRoles)
                 {
@@ -183,7 +202,11 @@ namespace TimeOffTracker.Business
 
         public EditUserVacationDaysViewModel GetUserForEditVacationDaysByEmail(ApplicationUserManager UserManager, string email)
         {
-            ApplicationUser user = UserManager.FindByEmail(email);
+            ApplicationUser user = UserManager.FindByEmail(email + "");
+            if(user == null)
+            {
+                return null;
+            }
             var userRoles = UserManager.GetRoles(user.Id);
             Dictionary<string, int> vacations = new Dictionary<string, int>();
             vacations = GetVacationDictionaryByEmail(email);

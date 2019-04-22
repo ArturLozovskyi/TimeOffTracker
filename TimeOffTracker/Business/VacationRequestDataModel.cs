@@ -20,7 +20,7 @@ namespace TimeOffTracker.Business
         {
             using (var db = new ApplicationDbContext())
             {
-                var currentUser = UserManager.FindById(id);
+                var currentUser = UserManager.FindById(id + "");
                 if (currentUser == null)
                 {
                     return null;
@@ -48,7 +48,7 @@ namespace TimeOffTracker.Business
 
         public string CreateVacationRequest(ApplicationUserManager UserManager, string id, CreateVacationRequestViewModel model)
         {
-            var currentUser = UserManager.FindById(id);
+            var currentUser = UserManager.FindById(id + "");
 
             if (currentUser == null)
             {
@@ -120,7 +120,7 @@ namespace TimeOffTracker.Business
             using (ApplicationDbContext context = new ApplicationDbContext())
             {
                 var history = new ListHistoryOfVacationViewModel();
-                ApplicationUser user = UserManager.FindById(id);
+                ApplicationUser user = UserManager.FindById(id + "");
 
                 if(user == null)
                 {

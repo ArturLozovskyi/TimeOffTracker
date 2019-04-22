@@ -35,7 +35,7 @@ namespace TimeOffTracker.Migrations
                 FullName = "Administrator",
                 EmploymentDate = DateTime.Now.Date
             };
-            
+
             var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             IdentityResult result = UserManager.Create(user, "Sfzom#231");
 
